@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { PenTool, Square, Circle, ToggleRight, Trash2, Download } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import type { Category, Note } from '../lib/types';
 import { X, Image as ImageIcon, Video, Loader2, BoldIcon, ItalicIcon, List, Link2 as Link, Code, Quote, Strikethrough, Underline, Undo, Redo, Eye } from 'lucide-react';
@@ -20,6 +21,11 @@ export default function NoteForm({ selectedCategory, onNoteAdded, editingNote, o
   });
   const [submitting, setSubmitting] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
+  // Drawing states
+  const [showDrawingPanel, setShowDrawingPanel] = useState(false);
+  const [penMode, setPenMode] = useState(false);
+  const [drawingColor, setDrawingColor] = useState('#3b82f6');
+  const [lineWidth, setLineWidth] = useState(3);
   const contentRef = useRef<HTMLDivElement>(null);
 
   // Load data
@@ -77,58 +83,89 @@ export default function NoteForm({ selectedCategory, onNoteAdded, editingNote, o
   const handleQuote = () => execCommand('formatBlock', '<blockquote>');
 
   const [isDrawing, setIsDrawing] = useState(false);
+  const [lastX, setLastX] = useState(0);
+  const [lastY, setLastY] = useState(0);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const ctxRef = useRef<CanvasRenderingContext2D | null>(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (canvas) {
-      canvas.width = 200;
-      canvas.height = 100;
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width * window.devicePixelRatio;
+      canvas.height = rect.height * window.devicePixelRatio;
       const ctx = canvas.getContext('2d');
       if (ctx) {
-        ctx.strokeStyle = '#3b82f6';
-        ctx.lineWidth = 2;
+        ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+        ctx.strokeStyle = drawingColor;
+        ctx.lineWidth = lineWidth;
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
         ctxRef.current = ctx;
       }
     }
-  }, []);
+  }, [drawingColor, lineWidth]);
 
-  // Drawing handlers
-  const startDrawing = (e: React.MouseEvent<HTMLCanvasElement>) => {
+  // Advanced drawing handlers with pen detection
+  const getPointerPos = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    const rect = canvasRef.current!.getBoundingClientRect();
+    return {
+      x: (e.clientX - rect.left) * (canvasRef.current!.width / rect.width),
+      y: (e.clientY - rect.top) * (canvasRef.current!.height / rect.height)
+    };
+  };
+
+  const startDrawing = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    e.preventDefault();
+    if (penMode && e.pointerType !== 'pen') return;
     const ctx = ctxRef.current;
     if (ctx && canvasRef.current) {
+      const pos = getPointerPos(e);
       ctx.beginPath();
-      ctx.moveTo(e.nativeEvent.offsetX, e.nativeEvent.offsetY);
+      ctx.moveTo(pos.x, pos.y);
+      setLastX(pos.x);
+      setLastY(pos.y);
       setIsDrawing(true);
+      canvasRef.current!.setPointerCapture(e.pointerId);
     }
   };
 
-  const draw = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    if (!isDrawing || !ctxRef.current || !canvasRef.current) return;
-    ctxRef.current.lineTo(e.nativeEvent.offsetX, e.nativeEvent.offsetY);
-    ctxRef.current.stroke();
+  const draw = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    e.preventDefault();
+    if (!isDrawing || !ctxRef.current) return;
+    if (penMode && e.pointerType !== 'pen') return;
+    const ctx = ctxRef.current;
+    const pos = getPointerPos(e);
+    const pressure = e.pressure || 0.5;
+    ctx.lineWidth = lineWidth * pressure;
+    ctx.strokeStyle = drawingColor;
+    ctx.lineTo(pos.x, pos.y);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(lastX, lastY);
+    ctx.lineTo(pos.x, pos.y);
+    ctx.stroke();
+    setLastX(pos.x);
+    setLastY(pos.y);
   };
 
-  const endDrawing = () => {
+  const endDrawing = (e: React.PointerEvent<HTMLCanvasElement>) => {
     setIsDrawing(false);
   };
 
-  const handleDraw = () => {
-    if (contentRef.current) {
-      const canvas = canvasRef.current;
-      if (canvas) {
-        const dataUrl = canvas.toDataURL();
-        document.execCommand('insertImage', false, dataUrl);
-        updateContent();
-        // Clear canvas
-        const ctx = ctxRef.current;
-        if (ctx) {
-          ctx.clearRect(0, 0, canvas.width, canvas.height);
-        }
-      }
+  const clearCanvas = () => {
+    const ctx = ctxRef.current;
+    if (ctx && canvasRef.current) {
+      ctx.clearRect(0, 0, canvasRef.current!.width, canvasRef.current!.height);
+    }
+  };
+
+  const insertDrawing = () => {
+    if (contentRef.current && canvasRef.current) {
+      const dataUrl = canvasRef.current.toDataURL('image/png');
+      document.execCommand('insertImage', false, dataUrl);
+      updateContent();
+      clearCanvas();
     }
   };
 
@@ -228,29 +265,22 @@ export default function NoteForm({ selectedCategory, onNoteAdded, editingNote, o
               <button type="button" onClick={handleUndo} className="p-3 hover:bg-blue-200 rounded-xl transition-all">
                 <Undo className="w-4 h-4" />
               </button>
-              <button type="button" onClick={handleRedo} className="p-3 hover:bg-blue-200 rounded-xl transition-all">
+            <button type="button" onClick={handleRedo} className="p-3 hover:bg-blue-200 rounded-xl transition-all">
                 <Redo className="w-4 h-4" />
               </button>
+              {/* Group separator for better formatting */}
+              <div className="w-px h-8 bg-blue-200 mx-2 hidden sm:block" />
 
-              {/* Draw Canvas - Hidden but available */}
-              <div className="hidden">
-                <canvas
-                  ref={canvasRef}
-                  onMouseDown={startDrawing}
-                  onMouseMove={draw}
-                  onMouseUp={endDrawing}
-                  onMouseLeave={endDrawing}
-                  className="border border-gray-300 rounded-lg bg-white cursor-crosshair"
-                />
-              </div>
+              <button type="button" onClick={() => setShowDrawingPanel(!showDrawingPanel)} className="p-3 hover:bg-blue-200 rounded-xl transition-all flex items-center gap-1" title="Toggle Drawing">
+                <PenTool className="w-4 h-4" />
+              </button>
 
               <div className="flex items-center gap-2 p-3 bg-white rounded-xl border ml-auto">
                 <Eye className="w-4 h-4 cursor-pointer hover:scale-110 transition-transform" onClick={togglePreview} />
-                <svg onClick={handleDraw} className="w-5 h-5 cursor-pointer hover:scale-110 transition-transform stroke-gray-700 hover:stroke-blue-600" viewBox="0 0 24 24" fill="none"><path d="M12 20.25c-4.972 0-9-3.815-9-8.5s4.028-8.5 9-8.5 9 3.815 9 8.5-4.028 8.5-9 8.5Z" strokeWidth="1.5"/><path d="M17.5 11.75a1.75 1.75 0 1 1-3.5 0 1.75 1.75 0 0 1 3.5 0Z" strokeWidth="1.5"/><path d="M6.763 17.237a.75.75 0 0 0 1.06-.04l1.342-1.253a3 3 0 0 1 4.814 0l1.342 1.253a.75.75 0 0 0 1.06.04l.345-.325a.75.75 0 0 0 .04-1.06l-1.342-1.253a3 3 0 0 1 0-4.814L18.11 6.112a.75.75 0 0 0-.04-1.06l-.345-.325a.75.75 0 0 0-1.06.04l-1.342 1.253a3 3 0 0 1-4.814 0L8.823 6.112a.75.75 0 0 0-1.06-.04l-.345.325a.75.75 0 0 0-.04 1.06l1.342 1.253a3 3 0 0 1 0 4.814l-1.342 1.253a.75.75 0 0 0 .04 1.06l.345.325Z" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
               </div> 
             </div>
 
-            <div className={!showPreview ? 'flex' : 'hidden'}>
+            <div className={!showPreview ? 'flex flex-col' : 'hidden'}>
                 <div
                 ref={contentRef}
                 contentEditable
@@ -259,6 +289,67 @@ export default function NoteForm({ selectedCategory, onNoteAdded, editingNote, o
                 suppressContentEditableWarning={true}
                 dir="auto"
               />
+              {showDrawingPanel && (
+                <div className="mt-4 p-4 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-2xl border-2 border-indigo-200">
+                  <div className="flex flex-wrap gap-2 mb-3 items-center justify-between">
+                    <div className="flex items-center gap-2 text-xs font-bold text-indigo-800">
+                      <PenTool className="w-4 h-4" />
+                      Digital Pen Drawing
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <label className="flex items-center gap-1 text-xs bg-white px-2 py-1 rounded-lg border cursor-pointer hover:bg-indigo-100">
+                        <ToggleRight className="w-3 h-3" />
+                        Pen Only
+                        <input type="checkbox" checked={penMode} onChange={(e) => setPenMode(e.target.checked)} className="ml-1" />
+                      </label>
+                    </div>
+                  </div>
+                  <div className="flex gap-2 mb-4 p-2 bg-white rounded-xl border">
+                    <input
+                      type="color"
+                      value={drawingColor}
+                      onChange={(e) => setDrawingColor(e.target.value)}
+                      className="w-10 h-10 rounded-lg cursor-pointer border-2 border-indigo-300"
+                    />
+                    <input
+                      type="range"
+                      min="1"
+                      max="20"
+                      value={lineWidth}
+                      onChange={(e) => setLineWidth(Number(e.target.value))}
+                      className="flex-1 h-8 accent-indigo-500"
+                    />
+                    <span className="w-8 text-center text-sm font-bold text-indigo-800">{lineWidth}px</span>
+                  </div>
+                  <canvas
+                    ref={canvasRef}
+                    onPointerDown={startDrawing}
+                    onPointerMove={draw}
+                    onPointerUp={endDrawing}
+                    onPointerLeave={endDrawing}
+                    onPointerCancel={endDrawing}
+                    className="w-full h-64 sm:h-80 border-2 border-indigo-300 rounded-2xl bg-white cursor-crosshair shadow-lg hover:shadow-xl transition-shadow"
+                  />
+                  <div className="flex gap-2 mt-3 pt-3 border-t border-indigo-200">
+                    <button
+                      type="button"
+                      onClick={clearCanvas}
+                      className="flex-1 p-3 bg-red-100 hover:bg-red-200 text-red-800 font-bold rounded-xl border border-red-300 transition-all flex items-center justify-center gap-2"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                      Clear
+                    </button>
+                    <button
+                      type="button"
+                      onClick={insertDrawing}
+                      className="flex-1 p-3 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-bold rounded-xl shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2 border border-indigo-500"
+                    >
+                      <Download className="w-4 h-4" />
+                      Insert Drawing
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
 
 {showPreview && (
