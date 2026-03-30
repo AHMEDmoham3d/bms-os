@@ -20,9 +20,9 @@ export default function NotesList({ notes, categories, selectedCategory, onDelet
   if (notes.length === 0) {
     return (
       <div className="col-span-full text-center py-24 bg-slate-50/50 rounded-3xl border-2 border-dashed border-slate-300">
-        <Clock className="w-20 h-20 text-slate-400 mx-auto mb-8 animate-pulse" />
-        <h3 className="text-3xl font-black text-slate-900 mb-3">No notes yet</h3>
-        <p className="text-xl text-slate-500 max-w-md mx-auto leading-relaxed">Your first note will appear here. Start capturing your thoughts now.</p>
+        <Clock className="w-16 h-16 sm:w-20 sm:h-20 text-slate-400 mx-auto mb-6 sm:mb-8 animate-pulse" />
+        <h3 className="text-2xl sm:text-3xl font-black text-slate-900 mb-2 sm:mb-3">No notes yet</h3>
+        <p className="text-lg sm:text-xl text-slate-500 max-w-md mx-auto leading-relaxed">Your first note will appear here. Start capturing your thoughts now.</p>
       </div>
     );
   }
@@ -40,11 +40,11 @@ export default function NotesList({ notes, categories, selectedCategory, onDelet
   }
 
   return (
-    <div className="flex flex-col gap-6 max-w-3xl mx-auto p-4">
+    <div className="grid grid-cols-1 gap-4 sm:gap-6 max-w-4xl mx-auto px-2 sm:px-4">
       {expandedNoteId !== 0 && (
         <button 
           onClick={() => setExpandedNoteId(0)} 
-          className="group flex items-center gap-3 p-6 bg-slate-900 text-white rounded-3xl font-black text-xl shadow-2xl hover:shadow-slate-900/50 hover:-translate-y-1 transition-all border border-slate-800 w-full text-left"
+          className="group flex items-center gap-2 sm:gap-3 p-4 sm:p-6 bg-slate-900 text-white rounded-3xl font-black text-base sm:text-lg shadow-2xl hover:shadow-slate-900/50 hover:-translate-y-1 transition-all border border-slate-800 w-full text-left"
         >
           <Plus className="w-7 h-7 group-hover:scale-110 transition-transform" />
           <span>New Note</span>
@@ -68,9 +68,9 @@ export default function NotesList({ notes, categories, selectedCategory, onDelet
           >
 
             {/* Blog Header: Category Tag + Date */}
-            <div className="px-6 pt-6 pb-4 border-b border-slate-200">
+            <div className="px-4 sm:px-6 pt-4 sm:pt-6 pb-3 sm:pb-4 border-b border-slate-200">
               <div className="flex items-center justify-between">
-                <span className="inline-flex px-3 py-1 bg-slate-100 text-slate-700 rounded-full text-xs font-semibold">
+                <span className="inline-flex px-2 sm:px-3 py-1 bg-slate-100 text-slate-700 rounded-full text-xs font-semibold">
                   {category?.name || 'General'}
                 </span>
                 <div className="flex items-center gap-2 text-sm text-slate-500">
@@ -82,9 +82,9 @@ export default function NotesList({ notes, categories, selectedCategory, onDelet
             </div>
 
             {/* Content */}
-            <div className="px-6 pb-6">
-              <h3 className="font-bold text-xl text-slate-900 mb-3 leading-tight">{note.title}</h3>
-              <p className="text-slate-700 leading-relaxed line-clamp-3 prose prose-sm max-w-none" dir="auto">{note.content}</p>
+            <div className="px-4 sm:px-6 pb-4 sm:pb-6">
+              <h3 className="font-bold text-lg sm:text-xl text-slate-900 mb-2 sm:mb-3 leading-tight">{note.title}</h3>
+              <p className="text-sm sm:text-base text-slate-700 leading-relaxed line-clamp-2 sm:line-clamp-3 prose prose-sm max-w-none" dir="auto">{note.content}</p>
             </div>
 
 
@@ -95,7 +95,7 @@ export default function NotesList({ notes, categories, selectedCategory, onDelet
                 <img 
                   src={note.image} 
                   alt="Note image" 
-                  className="w-full h-48 object-cover"
+                  className="w-full h-32 sm:h-48 object-cover"
                   onError={(e) => {
                     console.warn('Image 404:', note.image);
                     e.currentTarget.style.display = 'none';

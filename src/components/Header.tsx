@@ -27,8 +27,8 @@ export default function Header() {
               </svg>
             </div>
             <div>
-              <h1 className="text-3xl font-black bg-gradient-to-r from-slate-900 via-slate-800 to-slate-700 bg-clip-text text-transparent tracking-tight">BMC</h1>
-              <p className="text-xs text-slate-500 font-semibold uppercase tracking-wider">Build. Manage. Connect. Operating System</p>
+              <h1 className="text-xl sm:text-2xl lg:text-3xl font-black bg-gradient-to-r from-slate-900 via-slate-800 to-slate-700 bg-clip-text text-transparent tracking-tight">BMC</h1>
+              <p className="text-xs sm:text-sm text-slate-500 font-semibold uppercase tracking-wider">Build. Manage. Connect. Operating System</p>
             </div>
           </Link>
 

@@ -176,20 +176,20 @@ export default function NoteForm({ selectedCategory, onNoteAdded, editingNote, o
 
   return (
     <div className={`space-y-6 ${inline ? 'w-full' : 'fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4'}`} onClick={!inline ? onClose : undefined}>
-      <div className={`${inline ? '' : 'bg-white w-full max-w-4xl mx-auto rounded-3xl p-8 shadow-2xl border max-h-[90vh] overflow-auto'}`} onClick={e => e.stopPropagation()}>
-        <div className="flex items-center justify-between mb-8">
-          <h2 className="text-3xl font-black text-gray-900">{editingNote ? 'Edit Note' : 'New Note'}</h2>
+      <div className={`${inline ? '' : 'bg-white w-full max-w-sm sm:max-w-md lg:max-w-2xl xl:max-w-4xl mx-auto rounded-3xl p-4 sm:p-6 lg:p-8 shadow-2xl border max-h-[90vh] overflow-auto'}`} onClick={e => e.stopPropagation()}>
+        <div className="flex items-center justify-between mb-4 sm:mb-8">
+          <h2 className="text-2xl sm:text-3xl font-black text-gray-900">{editingNote ? 'Edit Note' : 'New Note'}</h2>
           {!inline && <button onClick={onClose} className="p-2 hover:bg-gray-200 rounded-xl"><X className="w-6 h-6" /></button>}
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label className="text-sm font-bold text-gray-900 mb-2 block">Title *</label>
-            <input
+              <input
               type="text"
               value={formData.title}
               onChange={e => setFormData({...formData, title: e.target.value})}
-              className="w-full p-4 border border-gray-300 rounded-xl focus:ring-4 focus:ring-blue-500 focus:border-blue-500 text-lg"
+              className="w-full p-3 sm:p-4 border border-gray-300 rounded-xl focus:ring-4 focus:ring-blue-500 focus:border-blue-500 text-sm sm:text-base"
               placeholder="Enter compelling title..."
               disabled={submitting}
               required
@@ -197,8 +197,8 @@ export default function NoteForm({ selectedCategory, onNoteAdded, editingNote, o
           </div>
 
           <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-2xl border border-blue-200">
-            <div className="flex flex-wrap gap-2 mb-4">
-              <button type="button" onClick={handleBold} className="p-3 hover:bg-blue-200 rounded-xl transition-all flex items-center gap-1">
+            <div className="flex flex-wrap gap-1 sm:gap-2 mb-4">
+              <button type="button" onClick={handleBold} className="p-2 sm:p-3 hover:bg-blue-200 rounded-xl transition-all flex items-center gap-1">
                 <BoldIcon className="w-4 h-4" /> B
               </button>
               <button type="button" onClick={handleItalic} className="p-3 hover:bg-blue-200 rounded-xl transition-all flex items-center gap-1">
@@ -255,7 +255,7 @@ export default function NoteForm({ selectedCategory, onNoteAdded, editingNote, o
                 ref={contentRef}
                 contentEditable
                 onInput={updateContent}
-                className="w-full min-h-[250px] p-6 border-2 border-dashed border-gray-300 rounded-2xl focus:border-blue-500 focus:ring-4 ring-blue-500/20 bg-white text-lg leading-relaxed outline-none resize-none [&_strong]:font-bold [&_em]:italic [&_blockquote]:border-l-4 [&_blockquote]:border-gray-400 [&_blockquote]:pl-4 [&_blockquote]:italic [&_pre]:bg-gray-900 [&_pre]:text-white [&_pre]:p-4 [&_pre]:rounded-lg [&_code]:bg-gray-100 [&_code]:px-2 [&_code]:py-1 [&_code]:rounded [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:pl-6 [&_a]:text-blue-600 [&_a]:underline hover:[&_a]:text-blue-700"
+                className="w-full min-h-40 sm:min-h-[250px] p-3 sm:p-6 border-2 border-dashed border-gray-300 rounded-2xl focus:border-blue-500 focus:ring-4 ring-blue-500/20 bg-white text-sm sm:text-base leading-relaxed outline-none resize-none [&_strong]:font-bold [&_em]:italic [&_blockquote]:border-l-4 [&_blockquote]:border-gray-400 [&_blockquote]:pl-4 [&_blockquote]:italic [&_pre]:bg-gray-900 [&_pre]:text-white [&_pre]:p-4 [&_pre]:rounded-lg [&_code]:bg-gray-100 [&_code]:px-2 [&_code]:py-1 [&_code]:rounded [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:pl-6 [&_a]:text-blue-600 [&_a]:underline hover:[&_a]:text-blue-700"
                 suppressContentEditableWarning={true}
                 dir="auto"
               />
@@ -279,11 +279,11 @@ export default function NoteForm({ selectedCategory, onNoteAdded, editingNote, o
                   type="url"
                   value={formData.image}
                   onChange={e => setFormData({...formData, image: e.target.value})}
-                  className="w-full p-4 border border-gray-300 rounded-xl focus:ring-4 ring-blue-500/20 focus:border-blue-500 pr-28"
+                  className="w-full p-3 sm:p-4 border border-gray-300 rounded-xl focus:ring-4 ring-blue-500/20 focus:border-blue-500 pr-24 sm:pr-28"
                   placeholder="https://example.com/image.jpg"
                 />
                 {formData.image && (
-                  <img src={formData.image} className="absolute top-1 right-1 w-20 h-20 object-cover rounded-lg border-2 border-white shadow-md" onError={e => e.currentTarget.style.display = 'none'} />
+                  <img src={formData.image} className="absolute top-1 right-1 w-16 h-16 sm:w-20 sm:h-20 object-cover rounded-lg border-2 border-white shadow-md" onError={e => e.currentTarget.style.display = 'none'} />
                 )}
               </div>
             </div>
