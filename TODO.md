@@ -1,6 +1,10 @@
-# Logo Implementation TODO
+# Header Update Task
 
-- [x] Create public/logo.svg with BMC monogram
-- [x] Update src/components/Header.tsx to use new logo
-- [x] Test in dev server (run `npm run dev` if needed)
-- [x] Complete ✅
+## Steps:
+- [x] Create TODO.md with plan steps
+- [x] Step 1: Update src/components/Header.tsx with new design matching provided HTML
+- [x] Step 2: Test navigation and mobile menu
+- [x] Step 3: Attempt completion
+
+Progress: Starting implementation.
+
