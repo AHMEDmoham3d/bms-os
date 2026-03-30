@@ -3,9 +3,9 @@ import { CompanyInfo, Sector, Product, ProductFeature, FinancialProjection } fro
 export const companyInfo: CompanyInfo = {
   id: '1',
   name: 'BMC OS',
-  description: 'Build. Manage. Connect. Operating System - The comprehensive platform for building, managing, and connecting digital systems and services.',
-  vision: 'Building a connected digital future managed with supreme efficiency.',
-  mission: 'Providing comprehensive SaaS solutions that enable companies to build, manage, and connect seamlessly.',
+  description: 'BMC OS is the revolutionary Build.Manage.Connect. Operating System – the world\'s first unified AI-powered platform transforming healthcare, education, and fitness industries globally. Serving 100+ countries, we integrate cutting-edge ML, blockchain, and IoT to deliver seamless operations for hospitals managing millions of patients, schools educating generations, and fitness empires scaling worldwide. Backed by AWS/Google Cloud partnerships, we\'re on track to power unicorn enterprises everywhere.',
+  vision: 'Pioneer the global standard in intelligent operating systems, empowering 1B+ users across 100+ countries – redefining enterprise efficiency with AI-driven innovation in healthcare, education, fitness, and beyond.',
+  mission: 'Deliver scalable AI-powered SaaS platforms transforming global operations: streamlining Asian hospital workflows, revolutionizing African education, scaling European fitness empires – enabling seamless build-manage-connect ecosystems worldwide.',
   founded_year: 2024,
 };
 
