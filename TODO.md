@@ -1,11 +1,6 @@
-# BMC OS Home Page Enhancement: Strengthen About/Vision/Mission
+# Logo Implementation TODO
 
-## Progress
-- [x] Step 1: Analyzed files (App.tsx, Overview.tsx, company.ts) ✅
-- [x] Step 2: Confirmed edit plan with user ✅
-- [x] Step 3: Update src/data/company.ts with global-scale content ✅
-- [x] Step 4: Test changes (npm run dev) ✅
-- [x] Step 5: Verify home page renders enhanced sections ✅
-- [x] Step 6: Complete task ✅
-
-**Enhanced content live on home page (/) via Overview.tsx. Changes are data-driven and global-scale as requested.**
+- [x] Create public/logo.svg with BMC monogram
+- [x] Update src/components/Header.tsx to use new logo
+- [x] Test in dev server (run `npm run dev` if needed)
+- [x] Complete ✅

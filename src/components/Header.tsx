@@ -22,8 +22,14 @@ const navItems = [
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 lg:h-20">
           {/* Logo */}
-          <NavLink to="/" className="flex items-center gap-2 font-black text-2xl bg-gradient-to-r from-slate-900 to-gray-900 bg-clip-text text-transparent drop-shadow-lg hover:scale-105 transition-transform">
-            BMC OS
+<NavLink to="/" className="flex items-center gap-3 p-1 -m-1 rounded-xl hover:bg-white/50 transition-all group">
+            <img 
+              src="/logo.svg" 
+              alt="BMC OS" 
+              className="h-10 w-auto lg:h-12 drop-shadow-lg group-hover:scale-105 transition-transform duration-300 flex-shrink-0"
+              loading="lazy"
+            />
+            <span className="font-black text-xl lg:text-2xl bg-gradient-to-r from-slate-900 to-gray-900 bg-clip-text text-transparent drop-shadow-lg hidden lg:inline hover:scale-105 transition-transform">BMC OS</span>
           </NavLink>
 
           {/* Desktop Nav */}
