@@ -139,6 +139,7 @@ function NotesPage() {
               selectedCategoryId={selectedCategoryId}
               onCategorySelect={handleCategorySelect}
               notesByCategory={categoryNoteCounts}
+              onNoteAdded={handleNoteAdded}
             />
           </div>
           </section>
