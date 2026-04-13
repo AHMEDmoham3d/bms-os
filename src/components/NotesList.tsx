@@ -9,12 +9,14 @@ interface NotesListProps {
   notes: Note[];
   categories: Category[];
   selectedCategory: Category;
+  selectedNote: Note | null;
+  onSelectNote: (note: Note | null) => void;
   onDeleteNote: (id: number) => void;
   onUpdateNote: (noteId: number, updates: Partial<Note>) => void;
   onNoteAdded: () => void;
 }
 
-export default function NotesList({ notes, categories, selectedCategory, onDeleteNote, onUpdateNote, onNoteAdded }: NotesListProps) {
+export default function NotesList({ notes, categories, selectedCategory, onSelectNote, onDeleteNote, onUpdateNote, onNoteAdded }: NotesListProps) {
   const [expandedNoteId, setExpandedNoteId] = useState<number | null>(null);
 
   if (notes.length === 0) {
@@ -64,7 +66,11 @@ export default function NotesList({ notes, categories, selectedCategory, onDelet
             key={note.id} 
             className={`cursor-pointer group overflow-hidden bg-gradient-to-b from-white/95 to-slate-50/80 backdrop-blur-xl border border-slate-200/50 shadow-xl hover:shadow-2xl hover:shadow-slate-900/10 hover:-translate-y-1 transition-all duration-500 rounded-3xl ${note.id === expandedNoteId ? 'ring-4 ring-slate-400/50 scale-105 shadow-2xl border-slate-300' : ''}`}
             style={{ animationDelay: `${index * 0.05}s` }}
-            onClick={() => setExpandedNoteId(note.id === expandedNoteId ? null : note.id)}
+            onClick={(e) => {
+              e.stopPropagation();
+              onSelectNote(note.id === expandedNoteId ? null : note);
+              setExpandedNoteId(note.id === expandedNoteId ? null : note.id);
+            }}
           >
 
             {/* Blog Header: Category Tag + Date */}

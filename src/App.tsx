@@ -6,6 +6,7 @@ import { companyInfo, sectors, products, teamMembers, financialProjections, prod
 import Header from './components/Header';
 import CategorySelector from './components/CategorySelector';
 import NotesList from './components/NotesList';
+import NoteModal from './components/NoteModal';
 import Overview from './components/Overview';
 import SectorsComp from './components/Sectors';
 import Products from './components/Products';
@@ -36,6 +37,7 @@ function Home() {
 
 function NotesPage() {
   const [selectedCategoryId, setSelectedCategoryId] = useState(0);
+  const [selectedNote, setSelectedNote] = useState<Note | null>(null);
   const { categories, notesByCategory, loading, error, refetch, deleteNote, updateNote } = useNotesData();
 
   const categoryNoteCounts = Object.fromEntries(
@@ -154,7 +156,23 @@ function NotesPage() {
                   </p>
                 </div>
               </div>
-              <NotesList notes={currentNotes} categories={categories} selectedCategory={selectedCategory} onDeleteNote={handleDeleteNote} onUpdateNote={handleUpdateNote} onNoteAdded={handleNoteAdded} />
+              <NotesList 
+                notes={currentNotes} 
+                categories={categories} 
+                selectedCategory={selectedCategory} 
+                selectedNote={selectedNote}
+                onSelectNote={setSelectedNote}
+                onDeleteNote={handleDeleteNote} 
+                onUpdateNote={handleUpdateNote} 
+                onNoteAdded={handleNoteAdded} 
+              />
+              {selectedNote && (
+                <NoteModal 
+                  isOpen={true} 
+                  onClose={() => setSelectedNote(null)} 
+                  note={selectedNote} 
+                />
+              )}
             </section>
           )}
           
