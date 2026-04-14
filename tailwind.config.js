@@ -63,25 +63,25 @@ export default {
           '0%': { opacity: '0', transform: 'translate3d(-30px, 0, 0)' },
           '100%': { opacity: '1', transform: 'translate3d(0, 0, 0)' },
         },
-        bounceFloat: {
-          '0%, 100%': { transform: 'translateY(0px)' },
-          '50%': { transform: 'translateY(-8px)' },
+        subtleFloat: {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-2px)' },
         },
-        pulseGlow: {
-          '0%, 100%': { boxShadow: '0 0 0 0 rgba(59, 130, 246, 0.4)' },
-          '50%': { boxShadow: '0 0 0 20px rgba(59, 130, 246, 0)' },
+        execPulse: {
+          '0%, 100%': { boxShadow: '0 0 0 0 rgba(148, 163, 184, 0.2)' },
+          '70%': { boxShadow: '0 0 0 8px rgba(148, 163, 184, 0)' },
         },
         ripple: {
-          '0%': { transform: 'scale(0)', opacity: '1' },
-          '100%': { transform: 'scale(4)', opacity: '0' },
+          '0%': { transform: 'scale(0)', opacity: '0.5' },
+          '70%': { transform: 'scale(1.5)', opacity: '0.3' },
+          '100%': { transform: 'scale(2.5)', opacity: '0' },
         },
         chipEntrance: {
-          '0%': { opacity: '0', transform: 'translate3d(0, 50px, 0) scale(0.9) rotate(-5deg)' },
-          '100%': { opacity: '1', transform: 'translate3d(0, 0, 0) scale(1) rotate(0deg)' },
+          '0%': { opacity: '0', transform: 'translate3d(0, 30px, 0) scale(0.95)' },
+          '100%': { opacity: '1', transform: 'translate3d(0, 0, 0) scale(1)' },
         },
       },
     },
-
   },
   plugins: [],
 };

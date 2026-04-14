@@ -115,15 +115,15 @@ export default function CategorySelector({ categories, selectedCategoryId, onCat
               style={{ animationDelay: `calc(var(--stagger-delay) * ${index})` } as React.CSSProperties}
             >
               <div className="absolute inset-0 rounded-2xl overflow-hidden pointer-events-none">
-                <div className="absolute inset-0 bg-gradient-radial from-emerald-400/30 to-transparent opacity-0 group-data-[active=true]:opacity-100 transition-opacity duration-500 animate-ripple origin-center" />
+                <div className="absolute inset-0 bg-gradient-to-r from-slate-400/20 to-slate-200/10 opacity-0 data-[active=true]:opacity-100 transition-all duration-600 animate-ripple origin-center" />
               </div>
               <button
                 onClick={() => onCategorySelect(category.id)}
                 data-active={isActive}
-                className={`group flex flex-col items-center p-6 rounded-2xl shadow-xl border-2 relative z-10 transition-all duration-500 hover:shadow-3xl hover:-translate-y-2 hover:scale-[1.06] active:scale-[0.98] flex-shrink-0 w-40 h-36 lg:w-44 lg:h-40 will-change-transform ${
+                className={`group flex flex-col items-center p-6 rounded-2xl shadow-xl border-2 relative z-10 transition-all duration-400 hover:shadow-2xl hover:-translate-y-1 hover:scale-102 active:scale-[0.99] flex-shrink-0 w-40 h-36 lg:w-44 lg:h-40 will-change-transform ${
                   isActive 
-                    ? 'bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white border-slate-600 shadow-2xl ring-4 ring-slate-500/50 ring-offset-2 ring-offset-slate-50 scale-[1.05] animate-pulseGlow' 
-                    : 'bg-white/80 backdrop-blur-sm border-slate-200 hover:border-emerald-300 text-slate-900 hover:shadow-emerald-100/50 hover:shadow-2xl'
+                    ? 'bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white border-slate-600 shadow-2xl ring-2 ring-slate-400/50 ring-offset-1 ring-offset-slate-50 scale-102 animate-execPulse' 
+                    : 'bg-white/90 backdrop-blur-sm border-slate-200 hover:border-slate-400 text-slate-900 hover:shadow-slate-200'
                 }`}
                 aria-label={`Select ${category.name}, ${noteCount} notes`}
                 aria-pressed={isActive}
@@ -148,9 +148,9 @@ export default function CategorySelector({ categories, selectedCategoryId, onCat
               </button>
                 <button
                 onClick={() => handleAddNote(category.id)}
-                className="absolute -top-3 left-1/2 -translate-x-1/2 bg-emerald-500 hover:bg-emerald-600 active:bg-emerald-700 text-white p-2.5 rounded-full shadow-xl hover:shadow-2xl transition-all duration-300 animate-bounceFloat w-10 h-10 flex items-center justify-center group-hover/card:scale-110 hover:-translate-y-1"
+                className="absolute -top-3 left-1/2 -translate-x-1/2 bg-slate-900 hover:bg-slate-800 text-white p-2.5 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 animate-subtleFloat w-10 h-10 flex items-center justify-center group-hover/card:scale-105"
               >
-                <Plus className="w-4 h-4 group-hover/card:rotate-12 transition-transform duration-300" />
+                <Plus className="w-4 h-4" />
               </button>
             </div>
           );
