@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { PenTool, Square, Circle, ToggleRight, Trash2, Download } from 'lucide-react';
+import { PenTool, ToggleRight, Trash2, Download } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import type { Category, Note } from '../lib/types';
-import { X, Image as ImageIcon, Video, Loader2, BoldIcon, ItalicIcon, List, Link2 as Link, Code, Quote, Strikethrough, Underline, Undo, Redo, Eye } from 'lucide-react';
+import { X, Image as ImageIcon, Video, Loader2, BoldIcon, ItalicIcon, List, Link2 as Link, Code, Quote, Strikethrough, Underline, Undo, Redo, Eye, Type, SeparatorHorizontal } from 'lucide-react';
 
 interface NoteFormProps {
   selectedCategory: Category;
@@ -46,10 +46,10 @@ export default function NoteForm({ selectedCategory, onNoteAdded, editingNote, o
 
   const updateContent = useCallback(() => {
     if (contentRef.current) {
-      const plainText = contentRef.current.innerText || '';
-      setFormData(prev => ({ ...prev, content: plainText }));
+      const htmlContent = contentRef.current.innerHTML || '';
+      setFormData(prev => ({ ...prev, content: htmlContent }));
     }
-  }, []); 
+  }, []);
 
   const execCommand = (command: string, value?: string) => {
     console.log('Toolbar:', command, value); // Debug
@@ -149,7 +149,7 @@ export default function NoteForm({ selectedCategory, onNoteAdded, editingNote, o
     setLastY(pos.y);
   };
 
-  const endDrawing = (e: React.PointerEvent<HTMLCanvasElement>) => {
+  const endDrawing = () => {
     setIsDrawing(false);
   };
 
@@ -235,7 +235,16 @@ export default function NoteForm({ selectedCategory, onNoteAdded, editingNote, o
 
           <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-2xl border border-blue-200">
             <div className="flex flex-wrap gap-1 sm:gap-2 mb-4">
-              <button type="button" onClick={handleBold} className="p-2 sm:p-3 hover:bg-blue-200 rounded-xl transition-all flex items-center gap-1">
+              <button type="button" onClick={() => execCommand('formatBlock', 'h1')} className="p-2 sm:p-3 hover:bg-blue-200 rounded-xl transition-all flex items-center gap-1" title="عنوان رئيسي (H1)">
+                <Type className="w-4 h-4" /> H1
+              </button>
+              <button type="button" onClick={() => execCommand('formatBlock', 'h2')} className="p-3 hover:bg-blue-200 rounded-xl transition-all flex items-center gap-1" title="عنوان جانبي (H2)">
+                <Type className="w-4 h-4 scale-75" /> H2
+              </button>
+              <button type="button" onClick={() => execCommand('insertHorizontalRule')} className="p-3 hover:bg-blue-200 rounded-xl transition-all" title="خط جديد / فاصل">
+                <SeparatorHorizontal className="w-4 h-4" />
+              </button>
+              <button type="button" onClick={handleBold} className="p-3 hover:bg-blue-200 rounded-xl transition-all flex items-center gap-1">
                 <BoldIcon className="w-4 h-4" /> B
               </button>
               <button type="button" onClick={handleItalic} className="p-3 hover:bg-blue-200 rounded-xl transition-all flex items-center gap-1">
@@ -285,7 +294,7 @@ export default function NoteForm({ selectedCategory, onNoteAdded, editingNote, o
                 ref={contentRef}
                 contentEditable
                 onInput={updateContent}
-                className="w-full min-h-40 sm:min-h-[250px] p-3 sm:p-6 border-2 border-dashed border-gray-300 rounded-2xl focus:border-blue-500 focus:ring-4 ring-blue-500/20 bg-white text-sm sm:text-base leading-relaxed outline-none resize-none [&_strong]:font-bold [&_em]:italic [&_blockquote]:border-l-4 [&_blockquote]:border-gray-400 [&_blockquote]:pl-4 [&_blockquote]:italic [&_pre]:bg-gray-900 [&_pre]:text-white [&_pre]:p-4 [&_pre]:rounded-lg [&_code]:bg-gray-100 [&_code]:px-2 [&_code]:py-1 [&_code]:rounded [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:pl-6 [&_a]:text-blue-600 [&_a]:underline hover:[&_a]:text-blue-700"
+                className="w-full min-h-40 sm:min-h-[250px] p-3 sm:p-6 border-2 border-dashed border-gray-300 rounded-2xl focus:border-blue-500 focus:ring-4 ring-blue-500/20 bg-white text-sm sm:text-base leading-relaxed outline-none resize-none prose prose-slate [&_h1]:text-2xl [&_h1]:font-black [&_h1]:mb-4 [&_h2]:text-xl [&_h2]:font-bold [&_h2]:mb-3 [&_strong]:font-bold [&_em]:italic [&_blockquote]:border-l-4 [&_blockquote]:border-gray-400 [&_blockquote]:pl-4 [&_blockquote]:italic [&_pre]:bg-gray-900 [&_pre]:text-white [&_pre]:p-4 [&_pre]:rounded-lg [&_code]:bg-gray-100 [&_code]:px-2 [&_code]:py-1 [&_code]:rounded [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:pl-6 [&_a]:text-blue-600 [&_a]:underline hover:[&_a]:text-blue-700 [&_hr]:border-t [&_hr]:border-gray-300 [&_hr]:my-6" 
                 suppressContentEditableWarning={true}
                 dir="auto"
               />
@@ -353,9 +362,11 @@ export default function NoteForm({ selectedCategory, onNoteAdded, editingNote, o
             </div>
 
 {showPreview && (
-              <div className="min-h-[250px] p-6 border border-gray-200 rounded-2xl bg-gradient-to-br from-white to-gray-50 prose prose-gray max-w-none leading-relaxed whitespace-pre-wrap" dir="auto">
-                {formData.content || 'No content'}
-              </div>
+              <div 
+                className="min-h-[250px] p-6 border border-gray-200 rounded-2xl bg-gradient-to-br from-white to-gray-50 prose prose-gray max-w-none leading-relaxed prose-headings:text-slate-900 prose-headings:font-black" 
+                dir="auto"
+                dangerouslySetInnerHTML={{ __html: formData.content || 'No content' }} 
+              />
             )}
           </div>
 

@@ -90,7 +90,11 @@ export default function NotesList({ notes, categories, selectedCategory, onSelec
             {/* Content */}
             <div className="px-4 sm:px-6 pb-4 sm:pb-6">
               <h3 className="font-bold text-lg sm:text-xl text-slate-900 mb-2 sm:mb-3 leading-tight">{note.title}</h3>
-              <p className="text-sm sm:text-base text-slate-700 leading-relaxed line-clamp-2 sm:line-clamp-3 prose prose-sm max-w-none" dir="auto">{note.content}</p>
+              <div 
+                className="text-sm sm:text-base text-slate-700 leading-relaxed line-clamp-3 prose prose-sm max-w-none max-h-20 sm:max-h-24 overflow-hidden prose-headings:text-slate-900 prose-headings:font-bold [&_hr]:border-t [&_hr]:border-gray-300 [&_hr]:my-2" 
+                dir="auto"
+                dangerouslySetInnerHTML={{ __html: note.content }} 
+              />
             </div>
 
 
