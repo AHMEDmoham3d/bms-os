@@ -26,12 +26,12 @@ export default function CategorySelector({ categories, selectedCategoryId, onCat
   const categoryForForm = categories.find(c => c.id === showAddForm!) || selectedCategory!;
 
   return (
-    <div className="w-full">
+<div className="w-full animate-fadeInUp">
       {/* Mobile Dropdown */}
       <div className="md:hidden relative max-w-md mx-auto">
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="group w-full p-6 border-2 border-slate-200 rounded-2xl bg-white shadow-lg hover:shadow-xl hover:border-slate-300 focus:ring-4 focus:ring-slate-900/20 focus:outline-none transition-all duration-300 hover:-translate-y-0.5"
+          className="group w-full p-6 border-2 border-slate-200 rounded-2xl bg-white shadow-lg hover:shadow-2xl hover:border-slate-400 focus:ring-4 ring-slate-900/20 focus:outline-none transition-all duration-300 hover:-translate-y-1 will-change-transform"
         >
           <div className="flex items-center justify-between">
             <span className="text-xl font-black text-slate-900">
@@ -47,22 +47,23 @@ export default function CategorySelector({ categories, selectedCategoryId, onCat
           </div>
         </button>
 
-        {isOpen && (
-          <div className="absolute w-full mt-2 bg-white/90 backdrop-blur-md border-2 border-slate-200 rounded-2xl shadow-2xl z-20 max-h-80 overflow-auto">
-            <div className="py-2">
+{isOpen && (
+          <div className="absolute w-full mt-2 bg-white/95 backdrop-blur-xl border-2 border-slate-200 rounded-3xl shadow-2xl z-20 max-h-80 overflow-hidden animate-slideDown">
+            <div className="py-4">
               {categories.length === 0 ? (
-                <div className="px-6 py-8 text-center text-slate-500">
+                <div className="px-6 py-8 text-center text-slate-500 animate-fadeInUp">
                   No categories yet. Create in Supabase dashboard.
                 </div>
               ) : (
-                categories.map((category) => (
+                categories.map((category, index) => (
                   <div key={category.id} className="group relative">
                     <button
                       onClick={() => {
                         onCategorySelect(category.id);
                         setIsOpen(false);
                       }}
-                      className="w-full px-6 py-5 border-b border-slate-100 last:border-b-0 hover:bg-slate-50 focus:bg-slate-50 transition-all flex items-center gap-4"
+                      className="w-full px-6 py-5 border-b border-slate-100 last:border-b-0 hover:bg-slate-50/80 focus:bg-slate-50/80 transition-all duration-200 flex items-center gap-4 animate-slideInLeft [--delay:calc(0.1s_*_var(--i))] group/item data-[index={index}]"
+                      style={{ '--i': index } as React.CSSProperties}
                     >
                       <div className="w-12 h-12 bg-slate-900/10 rounded-xl flex items-center justify-center group-hover:bg-slate-900/20 transition-all flex-shrink-0">
                         <span className="text-lg font-black text-slate-800">
@@ -102,19 +103,27 @@ export default function CategorySelector({ categories, selectedCategoryId, onCat
         )}
       </div>
 
-      {/* Desktop Grid Chips - Enhanced */}
-      <div className="hidden md:flex flex-wrap gap-6 lg:gap-8 justify-evenly max-w-6xl mx-auto pb-12">
-        {categories.map((category) => {
+      {/* Desktop Grid Chips - Smart Staggered */}
+      <div className="hidden md:grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 lg:gap-8 justify-evenly max-w-6xl mx-auto pb-12 animate-fadeInUp [--stagger-delay:0.1s]">
+        {categories.map((category, index) => {
           const noteCount = getNoteCount(category.id);
           const isActive = category.id === selectedCategoryId;
           return (
-            <div key={category.id} className="relative">
+            <div 
+              key={category.id} 
+              className="relative animate-chipStagger group/card" 
+              style={{ animationDelay: `calc(var(--stagger-delay) * ${index})` } as React.CSSProperties}
+            >
+              <div className="absolute inset-0 rounded-2xl overflow-hidden pointer-events-none">
+                <div className="absolute inset-0 bg-gradient-radial from-emerald-400/30 to-transparent opacity-0 group-data-[active=true]:opacity-100 transition-opacity duration-500 animate-ripple origin-center" />
+              </div>
               <button
                 onClick={() => onCategorySelect(category.id)}
-                className={`group flex flex-col items-center p-6 rounded-2xl shadow-xl border-2 transition-all duration-300 hover:shadow-2xl hover:-translate-y-1.5 hover:scale-105 flex-shrink-0 w-40 h-36 lg:w-44 lg:h-40 ${
+                data-active={isActive}
+                className={`group flex flex-col items-center p-6 rounded-2xl shadow-xl border-2 relative z-10 transition-all duration-500 hover:shadow-3xl hover:-translate-y-2 hover:scale-[1.06] active:scale-[0.98] flex-shrink-0 w-40 h-36 lg:w-44 lg:h-40 will-change-transform ${
                   isActive 
-                    ? 'bg-gradient-to-br from-slate-900 to-slate-800 text-white border-slate-700 shadow-slate-900/25 ring-4 ring-slate-400/50 scale-105' 
-                    : 'bg-white border-slate-200 hover:border-slate-400 text-slate-900 hover:shadow-slate-300'
+                    ? 'bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white border-slate-600 shadow-2xl ring-4 ring-slate-500/50 ring-offset-2 ring-offset-slate-50 scale-[1.05] animate-pulseGlow' 
+                    : 'bg-white/80 backdrop-blur-sm border-slate-200 hover:border-emerald-300 text-slate-900 hover:shadow-emerald-100/50 hover:shadow-2xl'
                 }`}
                 aria-label={`Select ${category.name}, ${noteCount} notes`}
                 aria-pressed={isActive}
@@ -137,11 +146,11 @@ export default function CategorySelector({ categories, selectedCategoryId, onCat
                   {noteCount}
                 </span>
               </button>
-              <button
+                <button
                 onClick={() => handleAddNote(category.id)}
-                className="absolute -top-3 left-1/2 -translate-x-1/2 bg-emerald-500 hover:bg-emerald-600 text-white p-2 rounded-full shadow-lg hover:shadow-xl transition-all w-10 h-10 flex items-center justify-center group-hover:scale-110"
+                className="absolute -top-3 left-1/2 -translate-x-1/2 bg-emerald-500 hover:bg-emerald-600 active:bg-emerald-700 text-white p-2.5 rounded-full shadow-xl hover:shadow-2xl transition-all duration-300 animate-bounceFloat w-10 h-10 flex items-center justify-center group-hover/card:scale-110 hover:-translate-y-1"
               >
-                <Plus className="w-4 h-4" />
+                <Plus className="w-4 h-4 group-hover/card:rotate-12 transition-transform duration-300" />
               </button>
             </div>
           );
@@ -149,7 +158,7 @@ export default function CategorySelector({ categories, selectedCategoryId, onCat
       </div>
 
       {showAddForm && (
-        <div className="mt-8">
+        <div className="mt-12 animate-fadeInUp">
           <NoteForm 
             selectedCategory={categoryForForm!}
             onNoteAdded={() => {
