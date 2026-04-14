@@ -14,6 +14,8 @@ interface CategorySelectorProps {
 export default function CategorySelector({ categories, selectedCategoryId, onCategorySelect, onNoteAdded, notesByCategory = {} }: CategorySelectorProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [showAddForm, setShowAddForm] = useState<number | null>(null);
+  // const [search, setSearch] = useState('');
+  // const [sortBy, setSortBy] = useState<'alpha' | 'count'>('alpha');
   const selectedCategory = categories.find(c => c.id === selectedCategoryId);
 
   const getNoteCount = (categoryId: number) => notesByCategory[categoryId] || 0;
@@ -24,6 +26,7 @@ export default function CategorySelector({ categories, selectedCategoryId, onCat
   };
 
   const categoryForForm = categories.find(c => c.id === showAddForm!) || selectedCategory!;
+
 
   return (
     <div className="w-full">
