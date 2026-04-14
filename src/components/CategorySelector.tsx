@@ -148,9 +148,9 @@ export default function CategorySelector({ categories, selectedCategoryId, onCat
               </button>
                 <button
                 onClick={() => handleAddNote(category.id)}
-                className="absolute -top-3 left-1/2 -translate-x-1/2 bg-slate-900 hover:bg-slate-800 text-white p-2.5 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 animate-subtleFloat w-10 h-10 flex items-center justify-center group-hover/card:scale-105"
+                className="absolute -top-4 left-1/2 -translate-x-1/2 bg-emerald-500 hover:bg-emerald-600 text-white p-3 rounded-full shadow-xl hover:shadow-2xl transition-all duration-300 animate-subtleFloat w-11 h-11 flex items-center justify-center z-10 border-2 border-white/80 group-hover/card:scale-110 -ring-2 ring-emerald-400/50"
               >
-                <Plus className="w-4 h-4" />
+                <Plus className="w-5 h-5 drop-shadow-md" />
               </button>
             </div>
           );
