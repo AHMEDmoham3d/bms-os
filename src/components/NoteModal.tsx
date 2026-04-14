@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { X, Video, Bold, Italic, Underline, Strikethrough, List, Link2, Code, Quote, Undo, Redo, PenTool, Eye, Clock } from 'lucide-react';
+import { X, Video, Bold, Italic, Underline, Strikethrough, List, Link2, Code, Quote, Undo, Redo, PenTool, Eye, Clock, Type, SeparatorHorizontal, Table } from 'lucide-react';
 import type { Note, Category } from '../lib/types';
 
 interface NoteModalProps {
@@ -149,8 +149,23 @@ export default function NoteModal({ isOpen, onClose, note, onUpdateNote, categor
             <button type="button" className="p-3 hover:bg-blue-200 rounded-xl transition-all flex items-center gap-1" onClick={() => formatText('italic')} title="Italic (Ctrl+I)">
               <Italic className="w-4 h-4" /> <span className="hidden sm:inline">I</span>
             </button>
+            <button type="button" className="p-3 hover:bg-blue-200 rounded-xl transition-all" onClick={() => formatText('formatBlock', 'h1')} title="عنوان رئيسي">
+              <Type className="w-4 h-4" />
+            </button>
+            <button type="button" className="p-3 hover:bg-blue-200 rounded-xl transition-all" onClick={() => formatText('formatBlock', 'h2')} title="عنوان جانبي">
+              <Type className="w-4 h-4 scale-75" />
+            </button>
+            <button type="button" className="p-3 hover:bg-blue-200 rounded-xl transition-all" onClick={() => formatText('insertHorizontalRule')} title="خط فاصل">
+              <SeparatorHorizontal className="w-4 h-4" />
+            </button>
             <button type="button" className="p-3 hover:bg-blue-200 rounded-xl transition-all flex items-center gap-1" onClick={() => formatText('underline')} title="Underline">
               <Underline className="w-4 h-4" /> <span className="hidden sm:inline">U</span>
+            </button>
+            <button type="button" className="p-3 hover:bg-blue-200 rounded-xl transition-all" onClick={() => {
+              const tableHtml = '<table border="1" style="border-collapse: collapse;"><tr><td>Cell 1</td><td>Cell 2</td></tr><tr><td>Cell 3</td><td>Cell 4</td></tr></table>';
+              formatText('insertHTML', tableHtml);
+            }} title="جدول">
+              <Table className="w-4 h-4" />
             </button>
             <button type="button" className="p-3 hover:bg-blue-200 rounded-xl transition-all" onClick={() => formatText('strikeThrough')} title="Strikethrough">
               <Strikethrough className="w-4 h-4" />
