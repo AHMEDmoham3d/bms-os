@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { PenTool, ToggleRight, Trash2, Download } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import type { Category, Note } from '../lib/types';
-import { X, Image as ImageIcon, Video, Loader2, BoldIcon, ItalicIcon, List, Link2 as Link, Code, Quote, Strikethrough, Underline, Undo, Redo, Eye, Type, SeparatorHorizontal } from 'lucide-react';
+import { X, Image as ImageIcon, Video, Loader2, BoldIcon, ItalicIcon, List, Link2 as Link, Code, Quote, Strikethrough, Underline, Undo, Redo, Eye, Type, SeparatorHorizontal, AlignLeft, AlignCenter, AlignRight, Indent, Outdent } from 'lucide-react';
 
 interface NoteFormProps {
   selectedCategory: Category;
@@ -81,6 +81,11 @@ export default function NoteForm({ selectedCategory, onNoteAdded, editingNote, o
     }
   };
   const handleQuote = () => execCommand('formatBlock', '<blockquote>');
+  const handleIndent = () => execCommand('indent');
+  const handleOutdent = () => execCommand('outdent');
+  const handleJustifyLeft = () => execCommand('justifyLeft');
+  const handleJustifyCenter = () => execCommand('justifyCenter');
+  const handleJustifyRight = () => execCommand('justifyRight');
 
   const [isDrawing, setIsDrawing] = useState(false);
   const [lastX, setLastX] = useState(0);
@@ -271,6 +276,22 @@ export default function NoteForm({ selectedCategory, onNoteAdded, editingNote, o
               <button type="button" onClick={handleQuote} className="p-3 hover:bg-blue-200 rounded-xl transition-all">
                 <Quote className="w-4 h-4" />
               </button>
+              <div className="w-px h-8 bg-blue-200 mx-1 hidden sm:block" />
+              <button type="button" onClick={handleJustifyLeft} className="p-3 hover:bg-blue-200 rounded-xl" title="محاذاة يسار">
+                <AlignLeft className="w-4 h-4" />
+              </button>
+              <button type="button" onClick={handleJustifyCenter} className="p-3 hover:bg-blue-200 rounded-xl" title="محاذاة وسط">
+                <AlignCenter className="w-4 h-4" />
+              </button>
+              <button type="button" onClick={handleJustifyRight} className="p-3 hover:bg-blue-200 rounded-xl" title="محاذاة يمين">
+                <AlignRight className="w-4 h-4" />
+              </button>
+              <button type="button" onClick={handleIndent} className="p-3 hover:bg-blue-200 rounded-xl" title="زيادة المسافة">
+                <Indent className="w-4 h-4" />
+              </button>
+              <button type="button" onClick={handleOutdent} className="p-3 hover:bg-blue-200 rounded-xl" title="تقليل المسافة">
+                <Outdent className="w-4 h-4" />
+              </button>
               <button type="button" onClick={handleUndo} className="p-3 hover:bg-blue-200 rounded-xl transition-all">
                 <Undo className="w-4 h-4" />
               </button>
@@ -294,7 +315,7 @@ export default function NoteForm({ selectedCategory, onNoteAdded, editingNote, o
                 ref={contentRef}
                 contentEditable
                 onInput={updateContent}
-                className="w-full min-h-40 sm:min-h-[250px] p-3 sm:p-6 border-2 border-dashed border-gray-300 rounded-2xl focus:border-blue-500 focus:ring-4 ring-blue-500/20 bg-white text-sm sm:text-base leading-relaxed outline-none resize-none prose prose-slate [&_h1]:text-2xl [&_h1]:font-black [&_h1]:mb-4 [&_h2]:text-xl [&_h2]:font-bold [&_h2]:mb-3 [&_strong]:font-bold [&_em]:italic [&_blockquote]:border-l-4 [&_blockquote]:border-gray-400 [&_blockquote]:pl-4 [&_blockquote]:italic [&_pre]:bg-gray-900 [&_pre]:text-white [&_pre]:p-4 [&_pre]:rounded-lg [&_code]:bg-gray-100 [&_code]:px-2 [&_code]:py-1 [&_code]:rounded [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:pl-6 [&_a]:text-blue-600 [&_a]:underline hover:[&_a]:text-blue-700 [&_hr]:border-t [&_hr]:border-gray-300 [&_hr]:my-6" 
+                className="w-full min-h-40 sm:min-h-[250px] p-6 border-2 border-dashed border-slate-200 rounded-3xl focus:border-blue-500 focus:ring-4 ring-blue-200/50 bg-gradient-to-br from-slate-50 to-white text-base leading-7 font-[Cairo] direction-rtl prose prose-slate prose-headings:font-black prose-headings:text-slate-900 prose-a:text-blue-600 prose-a:no-underline hover:prose-a:underline prose-strong:font-bold prose-em:italic prose-li:leading-relaxed prose-blockquote:border-r-4 prose-blockquote:border-blue-400 prose-blockquote:pr-4 prose-pre:bg-slate-900 prose-code:bg-slate-100 [&_ul]:list-disc [&_ol]:list-decimal pl-8 [&_hr]:border-slate-300 [&_hr]:my-8 [&_div[style*='text-align:'][style*='left']]:text-left [&_div[style*='text-align:'][style*='center']]:text-center [&_div[style*='text-align:'][style*='right']]:text-right outline-none resize-none shadow-inner hover:shadow-md transition-all" 
                 suppressContentEditableWarning={true}
                 dir="auto"
               />
