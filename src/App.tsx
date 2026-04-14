@@ -166,14 +166,16 @@ function NotesPage() {
                 onUpdateNote={handleUpdateNote} 
                 onNoteAdded={handleNoteAdded} 
               />
-              {selectedNote && (
-                <NoteModal 
-                  isOpen={true} 
-                  onClose={() => setSelectedNote(null)} 
-                  note={selectedNote} 
-                />
-              )}
             </section>
+          )}
+{selectedNote && (
+            <NoteModal 
+              isOpen={true} 
+              onClose={() => setSelectedNote(null)} 
+              note={selectedNote}
+              onUpdateNote={handleUpdateNote}
+              categories={categories}
+            />
           )}
           
 
