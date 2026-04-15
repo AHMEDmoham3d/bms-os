@@ -73,6 +73,11 @@ export interface Note {
   video_url?: string;
   category_id: number;
   created_at: string;
+  updated_at?: string;
+  tags: string[];
+  priority: 'low' | 'medium' | 'high';
+  pinned: boolean;
+  template?: string;
 }
 
 export interface User {

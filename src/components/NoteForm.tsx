@@ -18,6 +18,10 @@ export default function NoteForm({ selectedCategory, onNoteAdded, editingNote, o
     content: '',
     image: '',
     video_url: '',
+    tags: [] as string[],
+    priority: 'medium' as 'low' | 'medium' | 'high',
+    pinned: false,
+    template: '',
   });
   const [submitting, setSubmitting] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
@@ -36,9 +40,13 @@ export default function NoteForm({ selectedCategory, onNoteAdded, editingNote, o
         content: editingNote.content,
         image: editingNote.image || '',
         video_url: editingNote.video_url || '',
+        tags: editingNote.tags || [],
+        priority: editingNote.priority || 'medium',
+        pinned: editingNote.pinned || false,
+        template: editingNote.template || '',
       });
     } else {
-      setFormData({ title: '', content: '', image: '', video_url: '' });
+      setFormData({ title: '', content: '', image: '', video_url: '', tags: [], priority: 'medium', pinned: false, template: '' });
     }
   }, [editingNote]);
 
@@ -183,25 +191,27 @@ export default function NoteForm({ selectedCategory, onNoteAdded, editingNote, o
 
     setSubmitting(true);
     try {
+      const updates = {
+        title: formData.title,
+        content: formData.content,
+        image: formData.image || null,
+        video_url: formData.video_url || null,
+        tags: formData.tags,
+        priority: formData.priority,
+        pinned: formData.pinned,
+        template: formData.template,
+      };
       if (editingNote) {
         const { error } = await supabase
           .from('notes')
-          .update({
-            title: formData.title,
-            content: formData.content,
-            image: formData.image || null,
-            video_url: formData.video_url || null,
-          })
+          .update(updates)
           .eq('id', editingNote.id);
         if (error) throw error;
       } else {
         const { error } = await supabase
           .from('notes')
           .insert({
-            title: formData.title,
-            content: formData.content,
-            image: formData.image || null,
-            video_url: formData.video_url || null,
+            ...updates,
             category_id: selectedCategory.id,
           });
         if (error) throw error;
@@ -236,6 +246,103 @@ export default function NoteForm({ selectedCategory, onNoteAdded, editingNote, o
               disabled={submitting}
               required
             />
+          </div>
+
+          {/* New Pro Fields */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label className="text-xs font-bold text-slate-700 mb-1 block uppercase tracking-wide">Priority</label>
+              <select 
+                value={formData.priority} 
+                onChange={e => setFormData({...formData, priority: e.target.value as 'low'|'medium'|'high'})}
+                className="w-full p-3 border border-slate-300 rounded-xl focus:ring-2 ring-blue-500 focus:border-blue-500 text-sm font-semibold"
+              >
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+              </select>
+            </div>
+            <div>
+              <label className="flex items-center gap-1 text-xs font-bold text-slate-700 mb-1 uppercase tracking-wide cursor-pointer hover:text-slate-800">
+                <input 
+                  type="checkbox" 
+                  checked={formData.pinned}
+                  onChange={e => setFormData({...formData, pinned: e.target.checked})}
+                  className="w-4 h-4 rounded focus:ring-2 ring-blue-500"
+                />
+                Pin to Top
+              </label>
+            </div>
+            <div>
+              <label className="text-xs font-bold text-slate-700 mb-1 block uppercase tracking-wide">Template</label>
+              <select 
+                value={formData.template} 
+                onChange={e => {
+                  const temp = e.target.value;
+                  setFormData({...formData, template: temp});
+                  // Auto-fill content
+                  const templates = {
+                    meeting: '<h2>Meeting Notes</h2><p><strong>Date:</strong> </p><p><strong>Attendees:</strong> </p><h3>Agenda:</h3><ul><li></li></ul><h3>Action Items:</h3><ul><li>Owner: <strong></strong> Due: </li></ul><h3>Decisions:</h3><p></p>',
+                    task: '<h2>Task List</h2><p><strong>Priority:</strong> </p><ul><li><input type="checkbox"> Task 1</li></ul>',
+                    report: '<h1>Weekly Report</h1><p><strong>Period:</strong> </p><h2>Accomplishments:</h2><ul></ul><h2>Challenges:</h2><ul></ul><h2>Next Steps:</h2><ul></ul>',
+                  };
+                  if (temp && contentRef.current && templates[temp as keyof typeof templates]) {
+                    contentRef.current.innerHTML = templates[temp as keyof typeof templates];
+                    updateContent();
+                  }
+                }}
+                className="w-full p-3 border border-slate-300 rounded-xl focus:ring-2 ring-blue-500 focus:border-blue-500 text-sm"
+              >
+                <option value="">No Template</option>
+                <option value="meeting">Meeting Notes</option>
+                <option value="task">Task List</option>
+                <option value="report">Weekly Report</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Tags Input */}
+          <div>
+            <label className="text-sm font-bold text-gray-900 mb-2 block">Tags (comma separated)</label>
+            <div className="flex flex-wrap gap-2 p-3 border-2 border-dashed border-slate-200 rounded-xl min-h-[44px] items-center focus-within:border-blue-500 focus-within:ring-2 ring-blue-200/50 bg-slate-50/50">
+              {formData.tags.map((tag, index) => (
+                <span key={index} className="inline-flex items-center bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
+                  {tag}
+                  <button 
+                    type="button"
+                    onClick={() => setFormData({...formData, tags: formData.tags.filter(t => t !== tag) })}
+                    className="ml-1 hover:bg-blue-200 rounded-full p-0.5 -mr-1"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </span>
+              ))}
+              <input
+                type="text"
+                value={formData.tags[formData.tags.length - 1] || ''}
+                onChange={e => {
+                  const value = e.target.value;
+                  if (value.includes(',')) {
+                    const newTags = value.split(',').map(t => t.trim()).filter(t => t);
+                    setFormData({...formData, tags: [...formData.tags.slice(0, -1), ...newTags]});
+                    return;
+                  }
+                  const tags = [...formData.tags.slice(0, -1), value];
+                  setFormData({...formData, tags});
+                }}
+                onKeyDown={e => {
+                  if (e.key === 'Enter' || e.key === ',') {
+                    e.preventDefault();
+                    const value = formData.tags[formData.tags.length - 1]?.trim();
+                    if (value) {
+                      setFormData({...formData, tags: [...formData.tags.slice(0, -1), value]});
+                    }
+                  }
+                }}
+                placeholder={formData.tags.length === 0 ? 'meeting, task, urgent...' : ''}
+                className="flex-1 bg-transparent border-none outline-none p-0 text-sm placeholder-slate-500 focus:ring-0"
+              />
+            </div>
           </div>
 
           <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-2xl border border-blue-200">

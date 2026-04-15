@@ -22,7 +22,7 @@ export default function NoteModal({ isOpen, onClose, note, onUpdateNote, categor
 
   useEffect(() => {
     if (note) {
-      setContent(note.content);
+      setContent(note.content || '');
       const cat = categories.find(c => c.id === note.category_id);
       setCategory(cat?.name || 'General');
     }
@@ -139,10 +139,56 @@ export default function NoteModal({ isOpen, onClose, note, onUpdateNote, categor
           </div>
         </div>
 
+        {/* Pro Fields Panel */}
+        <div className="p-6 border-b border-slate-200 bg-gradient-to-r from-slate-50/70 to-blue-50/70">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label className="text-xs font-bold text-slate-700 mb-1 block uppercase tracking-wide">Priority</label>
+              <select 
+                value={note?.priority || 'medium'} 
+                onChange={(e) => {
+                  if (onUpdateNote && note) {
+                    onUpdateNote(note.id, { priority: e.target.value as 'low' | 'medium' | 'high' });
+                  }
+                }}
+                className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 ring-blue-500 focus:border-blue-500 text-sm font-semibold bg-white"
+              >
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+              </select>
+            </div>
+            <div>
+              <label className="text-xs font-bold text-slate-700 mb-1 uppercase tracking-wide flex items-center gap-1 cursor-pointer">
+                <input 
+                  type="checkbox" 
+                  checked={note?.pinned || false}
+                  onChange={(e) => {
+                    if (onUpdateNote && note) {
+                      onUpdateNote(note.id, { pinned: e.target.checked });
+                    }
+                  }}
+                  className="w-4 h-4 rounded focus:ring-2 ring-blue-500"
+                />
+                Pinned
+              </label>
+            </div>
+            <div>
+              <label className="text-xs font-bold text-slate-700 mb-1 block uppercase tracking-wide">Tags</label>
+              <div className="flex flex-wrap gap-1">
+                {(note?.tags || []).map((tag, i) => (
+                  <span key={i} className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full font-medium">
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Toolbar */}
         {!isPreview && (
-          <div className="flex flex-wrap gap-1 sm:gap-2 mb-4 p-4 bg-gradient-to-r from-slate-50 to-blue-50 border-b border-slate-200">
-            {/* Formatting */}
+          <div className="flex flex-wrap gap-1 sm:gap-2 p-4 bg-gradient-to-r from-slate-50 to-blue-50 border-b border-slate-200">
             <button type="button" className="p-2 sm:p-3 hover:bg-blue-200 rounded-xl transition-all flex items-center gap-1" onClick={() => formatText('bold')} title="Bold (Ctrl+B)">
               <Bold className="w-4 h-4" /> <span className="hidden sm:inline">B</span>
             </button>
@@ -195,9 +241,9 @@ export default function NoteModal({ isOpen, onClose, note, onUpdateNote, categor
             <button type="button" className="p-3 hover:bg-blue-200 rounded-xl transition-all" onClick={() => formatText('redo')} title="Redo">
               <Redo className="w-4 h-4" />
             </button>
-            <div className="w-px h-8 bg-blue-200 mx-2 hidden sm:block"></div>
+            <div className="w-px h-8 bg-blue-200 mx-2 hidden sm:block" />
             {/* Drawing */}
-            <button type="button" className={`p-3 hover:bg-blue-200 rounded-xl transition-all flex items-center gap-1 ${isDrawing ? 'bg-blue-200 ring-2 ring-blue-400' : ''}`} onClick={() => setIsDrawing(!isDrawing)} title="Toggle Drawing">
+            <button type="button" className="p-3 hover:bg-blue-200 rounded-xl transition-all flex items-center gap-1" onClick={() => setIsDrawing(!isDrawing)} title="Toggle Drawing">
               <PenTool className="w-4 h-4" />
             </button>
             {isDrawing && (
@@ -210,12 +256,59 @@ export default function NoteModal({ isOpen, onClose, note, onUpdateNote, categor
             )}
             {/* Preview */}
             <div className="flex items-center gap-2 p-3 bg-white rounded-xl border ml-auto">
-              <button type="button" className={`p-2 hover:bg-slate-100 rounded-xl ${isPreview ? 'bg-slate-100 text-slate-700' : ''}`} onClick={() => setIsPreview(!isPreview)} title="Toggle Preview">
-                <Eye className={`w-4 h-4 ${isPreview ? 'cursor-pointer hover:scale-110 transition-transform' : ''}`} />
+              <button type="button" className="p-2 hover:bg-slate-100 rounded-xl" onClick={() => setIsPreview(!isPreview)} title="Toggle Preview">
+                <Eye className="w-4 h-4" />
               </button>
             </div>
           </div>
         )}
+
+        {/* Pro Fields Panel */}
+        <div className="p-6 border-b border-slate-200 bg-gradient-to-r from-slate-50/70 to-blue-50/70">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label className="text-xs font-bold text-slate-700 mb-1 block uppercase tracking-wide">Priority</label>
+              <select 
+                value={note?.priority || 'medium'} 
+                onChange={(e) => {
+                  if (onUpdateNote && note) {
+                    onUpdateNote(note.id, { priority: e.target.value as 'low' | 'medium' | 'high' });
+                  }
+                }}
+                className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 ring-blue-500 focus:border-blue-500 text-sm font-semibold bg-white"
+              >
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+              </select>
+            </div>
+            <div>
+              <label className="text-xs font-bold text-slate-700 mb-1 uppercase tracking-wide flex items-center gap-1 cursor-pointer">
+                <input 
+                  type="checkbox" 
+                  checked={note?.pinned || false}
+                  onChange={(e) => {
+                    if (onUpdateNote && note) {
+                      onUpdateNote(note.id, { pinned: e.target.checked });
+                    }
+                  }}
+                  className="w-4 h-4 rounded focus:ring-2 ring-blue-500"
+                />
+                Pinned
+              </label>
+            </div>
+            <div>
+              <label className="text-xs font-bold text-slate-700 mb-1 block uppercase tracking-wide">Tags</label>
+              <div className="flex flex-wrap gap-1">
+                {(note?.tags || []).map((tag, i) => (
+                  <span key={i} className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full font-medium">
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
 
         {/* Scrollable Content */}
         <div className="flex-1 min-h-0 p-6 sm:p-8 overflow-y-auto">
@@ -282,4 +375,3 @@ export default function NoteModal({ isOpen, onClose, note, onUpdateNote, categor
     </div>
   );
 }
-
