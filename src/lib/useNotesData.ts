@@ -37,10 +37,10 @@ export function useNotesData() {
 
       const categories: Category[] = categoriesData || [];
 
-      // Fetch ALL notes
+      // Fetch ALL notes - limit columns for safety
       const { data: allNotesData, error: notesError } = await supabase
         .from('notes')
-        .select('*')
+        .select('id, title, content, category_id, image, video_url, created_at')
         .order('created_at', { ascending: false });
 
       if (notesError) {
@@ -53,7 +53,12 @@ export function useNotesData() {
         throw notesError;
       }
 
-      const allNotes: Note[] = allNotesData || [];
+      const allNotes: Note[] = (allNotesData || []).map(note => ({
+        ...note,
+        tags: (note as any).tags || [],
+        priority: (note as any).priority || 'medium',
+        pinned: (note as any).pinned || false,
+      })) as Note[];
 
       console.log(`✅ Loaded ${categories.length} categories, ${allNotes.length} notes`);
 

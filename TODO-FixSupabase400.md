@@ -14,7 +14,8 @@ Status: 🔄 In Progress
 - [x] 3. Simplify NoteForm payload (title, content, category_id, image?, video_url?)
 - [x] 4. Test insert → logging added (user to test)
 - [ ] 5. Test fetch without mock fallback
-- [ ] 6. Check Supabase dashboard: `notes` table columns, RLS policies
+- [x] 6. Fixed varchar(255) limit - truncated title/content/image/video_url
+- [ ] 7. Dashboard: increase column limits if needed (title text, content text)
 - [ ] 6. Fix schema/RLS based on error
 - [ ] 7. Test full CRUD + fetch (disable mock conditionally)
 - [ ] 8. Reintroduce fields (tags as text[], etc.)

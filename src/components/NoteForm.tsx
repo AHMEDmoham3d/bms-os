@@ -193,10 +193,10 @@ export default function NoteForm({ selectedCategory, onNoteAdded, editingNote, o
     try {
       // Simplified payload to debug 400 - removed tags/priority/pinned
       const payload = {
-        title: formData.title,
-        content: formData.content,
-        image: formData.image || null,
-        video_url: formData.video_url || null,
+        title: formData.title.slice(0, 100),
+        content: formData.content.slice(0, 10000),
+        image: (formData.image || null)?.slice(0, 500),
+        video_url: (formData.video_url || null)?.slice(0, 500),
       };
       
       console.log('🔄 Supabase payload:', payload);
