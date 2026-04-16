@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { useNotesData } from './lib/useNotesData';
 import type { Note } from './lib/types';
@@ -7,6 +7,7 @@ import Header from './components/Header';
 import CategorySelector from './components/CategorySelector';
 import NotesList from './components/NotesList';
 import NoteModal from './components/NoteModal';
+import GlobalSearch from './components/GlobalSearch';
 import Overview from './components/Overview';
 import SectorsComp from './components/Sectors';
 import Products from './components/Products';
@@ -18,7 +19,7 @@ import { FolderOpen, FileText } from 'lucide-react';
 
 function Home() {
   return (
-    <main className="max-w-7xl mx-auto px-8 py-16 lg:px-12">
+    <main className="max-w-7xl mx-auto px-8 py-16 lg:px-12 relative z-0">
       <div className="text-center mb-20 px-4">
         <h1 className="text-5xl md:text-6xl font-black bg-gradient-to-r from-slate-900 to-gray-900 bg-clip-text text-transparent mb-6">
           BMC OS
@@ -38,7 +39,22 @@ function Home() {
 function NotesPage() {
   const [selectedCategoryId, setSelectedCategoryId] = useState(0);
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
+  const [searchOpen, setSearchOpen] = useState(false);
   const { categories, notesByCategory, loading, error, refetch, deleteNote, updateNote } = useNotesData();
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        setSearchOpen(true);
+      } else if (e.key === 'n') {
+        e.preventDefault();
+        // Trigger new note
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   const categoryNoteCounts = Object.fromEntries(
     Object.entries(notesByCategory).map(([k, v]) => [parseInt(k), v.length])
@@ -47,7 +63,6 @@ function NotesPage() {
 
   const selectedCategory = categories.find(c => c.id === selectedCategoryId);
   const currentNotes = selectedCategoryId ? (notesByCategory[selectedCategoryId] || []) : [];
-
 
   const handleCategorySelect = (categoryId: number) => {
     setSelectedCategoryId(categoryId);
@@ -95,8 +110,13 @@ function NotesPage() {
     );
   }
 
+  <GlobalSearch 
+    isOpen={searchOpen} 
+    onClose={() => setSearchOpen(false)}
+    onSelectNote={setSelectedNote}
+  />
   return (
-    <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16">
+    <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16 relative z-0">
       <div className="bg-white border border-slate-200 rounded-3xl p-4 sm:p-8 lg:p-16 shadow-2xl mb-8 sm:mb-16">
         <div className="max-w-6xl mx-auto space-y-8 sm:space-y-16 px-2 sm:px-4 lg:px-0">
           <div className="text-center">
