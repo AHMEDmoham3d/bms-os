@@ -1,11 +1,11 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { login as authLogin, logout as authLogout } from '../lib/auth';
+import { login, logout, getCurrentUser } from '../lib/auth';
 import type { AuthUser } from '../lib/types';
 
 interface AuthContextType {
   user: AuthUser | null;
   loading: boolean;
-  login: (email: string, password: string) => Promise<boolean>;
+  login: (usernameOrEmail: string, password: string) => Promise<boolean>;
   logout: () => void;
 }
 
@@ -16,18 +16,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Auto-login as admin - bypass all checks
-    const defaultUser: AuthUser = {
-      id: '1',
-      email: 'ahmedmoham3dceo@gmail.com',
-      role: 'admin'
-    };
-    setUser(defaultUser);
+    const savedUser = getCurrentUser();
+    setUser(savedUser);
     setLoading(false);
   }, []);
 
-  const handleLogin = async (email: string, password: string): Promise<boolean> => {
-    const loggedInUser = await authLogin(email, password);
+  const handleLogin = async (usernameOrEmail: string, password: string): Promise<boolean> => {
+    const loggedInUser = await login(usernameOrEmail, password);
     if (loggedInUser) {
       setUser(loggedInUser);
       return true;
@@ -36,7 +31,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const handleLogout = () => {
-    authLogout();
+    logout();
     setUser(null);
   };
 

@@ -1,29 +1,20 @@
-# Notes Modal Implementation Plan
-Status: In Progress
+# Fix Login Refresh Issue - Progress Tracker
 
-## Steps:
-- [x] 1. Create TODO.md with plan (done)
-- [x] 2. Create src/components/NoteModal.tsx (new scrollable read-only modal for full note content)
-- [x] 3. Update src/components/NotesList.tsx (add props: selectedNote, onSelectNote; update article onClick to trigger modal)
-- [x] 4. Update src/App.tsx (fixed JSX syntax error, moved NoteModal outside {selectedCategory} block)
-- [x] 5. Test: App now compiles (run `npm run dev` → http://localhost:5173/notes). Click note → modal with scroll works.
+## Current Task: Fix login persistence on page refresh across all routes
 
-- [ ] 6. Update TODO.md with completion, attempt_completion
+### Steps from Approved Plan:
+- [x] 1. Update src/lib/auth.ts (unify credentials to username/password)
+- [x] 2. Fix src/context/AuthContext.tsx (restore from localStorage, remove hardcoded)
 
-✅ Implementation complete! Ready for testing.
-- [ ] 5. Test: npm run dev, /notes, click note with long content → verify modal scroll works
-- [ ] 6. Update TODO.md with completion, attempt_completion
+- [x] 3. Update src/App.tsx (use useAuth() instead of sessionStorage)
 
-Next step: Update App.tsx
-- [ ] 4. Update src/App.tsx (add selectedNote state in NotesPage, pass to NotesList, render <NoteModal />)
-- [ ] 5. Test: npm run dev, /notes, click note with long content → verify modal scroll works
-- [ ] 6. Update TODO.md with completion, attempt_completion
+- [x] 4. Update src/components/LoginPage.tsx (use auth.login(), remove sessionStorage)
+- [x] 5. Test refresh on all pages: /, /notes, /team, /products, /sectors
+- [x] 6. Update TODO-Fix-Login-Refresh.md (mark complete)
 
-Next step: Update NotesList.tsx
-- [ ] 3. Update src/components/NotesList.tsx (add props: selectedNote, onSelectNote; update article onClick to trigger modal)
-- [ ] 4. Update src/App.tsx (add selectedNote state in NotesPage, pass to NotesList, render <NoteModal />)
-- [ ] 5. Test: npm run dev, /notes, click note with long content → verify modal scroll works
-- [ ] 6. Update TODO.md with completion, attempt_completion
+**Status:** ✅ COMPLETE - All changes implemented and TODOs updated.
 
-Next step: Create NoteModal.tsx
+
+
+
 

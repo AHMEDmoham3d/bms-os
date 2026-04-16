@@ -3,15 +3,16 @@ import type { AuthUser } from './types';
 const AUTH_KEY = 'bmc_auth_user';
 
 const VALID_CREDENTIALS = {
-  email: 'ahmedmoham3dceo@gmail.com',
-  password: '123456'
+  username: 'ahmrd',
+  password: 'ahmed'
 };
 
-export async function login(email: string, password: string): Promise<AuthUser | null> {
-  if (email === VALID_CREDENTIALS.email && password === VALID_CREDENTIALS.password) {
+export async function login(usernameOrEmail: string, password: string): Promise<AuthUser | null> {
+  if (usernameOrEmail === VALID_CREDENTIALS.username && password === VALID_CREDENTIALS.password) {
     const user: AuthUser = {
       id: '1',
-      email: email,
+      username: usernameOrEmail,
+      email: 'ahmedmoham3dceo@gmail.com',
       role: 'admin'
     };
 

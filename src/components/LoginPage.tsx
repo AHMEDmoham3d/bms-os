@@ -1,33 +1,30 @@
-import { useState, useEffect } from 'react';
-
-const VALID_USERNAME = 'ahmrd';
-const VALID_PASSWORD = 'ahmed';
+import { useState, type FormEvent } from 'react';
+import { useAuth } from '../context/AuthContext';
 
 export default function LoginPage() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const { login: authLogin } = useAuth();
 
-  useEffect(() => {
-    // Clear login on every load/refresh
-    sessionStorage.clear();
-  }, []);
-
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
     setError('');
 
-    setTimeout(() => {
-      setLoading(false);
-      if (username === VALID_USERNAME && password === VALID_PASSWORD) {
-        sessionStorage.setItem('bmc-logged-in', 'true');
+    try {
+      const success = await authLogin(username, password);
+      if (success) {
         window.location.reload();
       } else {
         setError('Invalid username or password');
       }
-    }, 800);
+    } catch (err) {
+      setError('Login failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
