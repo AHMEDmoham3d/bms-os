@@ -1,6 +1,4 @@
 import { useState } from 'react';
-import { Lock, Mail, LogIn, Loader2 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 
 const VALID_USERNAME = 'ahmrd';
 const VALID_PASSWORD = 'ahmed';
@@ -10,7 +8,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -23,25 +21,33 @@ export default function LoginPage() {
       if (username === VALID_USERNAME && password === VALID_PASSWORD) {
         // Static login success - store in session/localStorage
         sessionStorage.setItem('bmc-logged-in', 'true');
-        navigate('/notes', { replace: true });
+        setIsLoggedIn(true);
+        // Reload to trigger App logic
+        window.location.reload();
       } else {
         setError('اسم المستخدم أو كلمة السر غير صحيحة');
       }
     }, 800);
   };
 
+  if (isLoggedIn) {
+    return <div>جاري التوجيه...</div>;
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-12">
           <div className="w-24 h-24 bg-white/20 backdrop-blur-xl rounded-3xl flex items-center justify-center mx-auto mb-8 border border-white/30 shadow-2xl">
-            <Lock className="w-12 h-12 text-white" />
+            <svg className="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+            </svg>
           </div>
           <h1 className="text-4xl font-black text-white mb-4 bg-gradient-to-r from-white to-slate-200 bg-clip-text">
             BMC OS
           </h1>
           <p className="text-xl text-slate-300 max-w-sm mx-auto leading-relaxed">
-            نظام التشغيل المتقدم
+            نظام التشغيل المتقدم للشركات
           </p>
         </div>
 
@@ -52,7 +58,9 @@ export default function LoginPage() {
                 اسم المستخدم
               </label>
               <div className="relative">
-                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
                 <input
                   type="text"
                   value={username}
@@ -69,7 +77,9 @@ export default function LoginPage() {
                 كلمة المرور
               </label>
               <div className="relative">
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
                 <input
                   type="password"
                   value={password}
@@ -94,12 +104,17 @@ export default function LoginPage() {
             >
               {loading ? (
                 <>
-                  <Loader2 className="w-6 h-6 animate-spin" />
+                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-slate-900" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
                   جاري التحقق...
                 </>
               ) : (
                 <>
-                  <LogIn className="w-6 h-6" />
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+                  </svg>
                   تسجيل الدخول
                 </>
               )}
@@ -107,7 +122,7 @@ export default function LoginPage() {
           </form>
 
           <div className="mt-8 pt-8 border-t border-white/30 text-center text-sm text-slate-400">
-            BMC OS © 2024 • Enterprise Operations
+            BMC OS © 2024 • Enterprise Operations System
           </div>
         </div>
       </div>
