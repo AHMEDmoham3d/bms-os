@@ -222,6 +222,12 @@ function NotesPage() {
 }
 
 function App() {
+  const isLoggedIn = sessionStorage.getItem('bmc-logged-in') === 'true';
+
+  if (!isLoggedIn) {
+    return <LoginPage />;
+  }
+
   return (
     <AuthProvider>
       <Router>
@@ -241,6 +247,8 @@ function App() {
     </AuthProvider>
   );
 }
+
+import LoginPage from './components/LoginPage';
 
 export default App;
 
