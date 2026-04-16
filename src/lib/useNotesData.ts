@@ -44,7 +44,12 @@ export function useNotesData() {
         .order('created_at', { ascending: false });
 
       if (notesError) {
-        console.error('❌ Notes error:', notesError);
+        console.error('💥 NOTES FETCH ERROR:');
+        console.error('- Status:', (notesError as any).status || 'N/A');
+        console.error('- Code:', notesError.code);
+        console.error('- Message:', notesError.message);
+        console.error('- Details:', (notesError as any).details || 'N/A');
+        console.error('Full:', notesError);
         throw notesError;
       }
 
@@ -66,43 +71,13 @@ export function useNotesData() {
       });
     } catch (err) {
       console.error('💥 Full Supabase fetch failed:', err as Error);
-
-      // MOCK DATA FALLBACK - remove once Supabase works
-      console.log('📦 Using mock data fallback...');
-      const mockCategories: Category[] = [
-        { id: 1, name: 'Project Ideas' },
-        { id: 2, name: 'Meeting Notes' },
-        { id: 3, name: 'Action Items' },
-      ];
-      const mockNotes: Note[] = [
-        {
-          id: 1,
-          title: 'Q4 Planning Session',
-          content: 'Discuss budget allocation and timeline adjustments...',
-          category_id: 1,
-          image: undefined,
-          video_url: undefined,
-          created_at: new Date().toISOString(),
-        },
-        {
-          id: 2,
-          title: 'Client Feedback',
-          content: 'Positive response to demo. Next steps...',
-          category_id: 2,
-          image: undefined,
-          video_url: undefined,
-          created_at: new Date(Date.now() - 86400000).toISOString(),
-        },
-      ];
-      const notesByCategory: Record<number, Note[]> = {};
-      mockCategories.forEach(cat => {
-        notesByCategory[cat.id] = mockNotes.filter(note => note.category_id === cat.id);
-      });
+      
+      // TEMP DISABLED MOCK - show real error
       setData({
-        categories: mockCategories,
-        notesByCategory,
+        categories: [],
+        notesByCategory: {},
         loading: false,
-        error: null, // Hide banner - mocks work perfectly
+        error: 'Supabase connection failed. Check console for details.',
       });
       return;
     }

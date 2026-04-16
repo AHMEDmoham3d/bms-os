@@ -191,35 +191,51 @@ export default function NoteForm({ selectedCategory, onNoteAdded, editingNote, o
 
     setSubmitting(true);
     try {
-      const updates = {
+      // Simplified payload to debug 400 - removed tags/priority/pinned
+      const payload = {
         title: formData.title,
         content: formData.content,
         image: formData.image || null,
         video_url: formData.video_url || null,
-        tags: formData.tags,
-        priority: formData.priority,
-        // Removed 'pinned' and 'template' - not in Supabase schema
       };
+      
+      console.log('🔄 Supabase payload:', payload);
+      
+      let result;
       if (editingNote) {
-        const { error } = await supabase
+        result = await supabase
           .from('notes')
-          .update(updates)
-          .eq('id', editingNote.id);
-        if (error) throw error;
+          .update(payload)
+          .eq('id', editingNote.id)
+          .select()
+          .single();
       } else {
-        const { error } = await supabase
+        result = await supabase
           .from('notes')
           .insert({
-            ...updates,
+            ...payload,
             category_id: selectedCategory.id,
-          });
-        if (error) throw error;
+          })
+          .select()
+          .single();
       }
+      
+      const { data, error } = result;
+      if (error) {
+        console.error('💥 SUPABASE ERROR:', error);
+        console.error('Status:', (error as any).status || 'N/A');
+        console.error('Code:', error.code || 'N/A');
+        console.error('Details:', (error as any).details || 'N/A');
+        console.error('Message:', error.message || 'N/A');
+        alert(`Error: ${error.message || 'Unknown Supabase error - check console'}`);
+        throw error;
+      }
+      
+      console.log('✅ Saved:', data);
       onNoteAdded();
       if (onClose) onClose();
-    } catch (error) {
-      console.error('Save error:', error);
-      alert('Save failed');
+    } catch (error: any) {
+      console.error('💥 Save failed completely:', error);
     } finally {
       setSubmitting(false);
     }
