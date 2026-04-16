@@ -12,11 +12,11 @@ interface NotesListProps {
   selectedNote: Note | null;
   onSelectNote: (note: Note | null) => void;
   onDeleteNote: (id: number) => void;
-  onUpdateNote: (noteId: number, updates: Partial<Note>) => void;
+// onUpdateNote: (noteId: number, updates: Partial<Note>) => void;
   onNoteAdded: () => void;
 }
 
-export default function NotesList({ notes, categories, selectedCategory, onSelectNote, onDeleteNote, onUpdateNote, onNoteAdded }: NotesListProps) {
+export default function NotesList({ notes, categories, selectedCategory, onSelectNote, onDeleteNote, onNoteAdded }: NotesListProps) {
   const [expandedNoteId, setExpandedNoteId] = useState<number | null>(null);
 
   if (notes.length === 0) {
@@ -83,7 +83,7 @@ export default function NotesList({ notes, categories, selectedCategory, onSelec
                   <Clock className="w-4 h-4" />
                   <time>{timeAgo}</time>
                 </div>
-                <NoteActions note={note} onUpdateNote={onUpdateNote} onDeleteNote={onDeleteNote} />
+                <NoteActions note={note} onDeleteNote={onDeleteNote} />
               </div>
             </div>
 

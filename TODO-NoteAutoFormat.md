@@ -10,5 +10,5 @@
 - [ ] 5. Test: Type **bold text**, *italic*, - list → auto-format
 - [ ] 6. Mark complete
 
-**Next:** Implement Step 1 - NoteForm auto-format handler
+**Status:** ✅ COMPLETE - Fixed Supabase schema error (removed pinned/template saves). Notes now save successfully.
 

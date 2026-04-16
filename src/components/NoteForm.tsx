@@ -198,8 +198,7 @@ export default function NoteForm({ selectedCategory, onNoteAdded, editingNote, o
         video_url: formData.video_url || null,
         tags: formData.tags,
         priority: formData.priority,
-        pinned: formData.pinned,
-        template: formData.template,
+        // Removed 'pinned' and 'template' - not in Supabase schema
       };
       if (editingNote) {
         const { error } = await supabase

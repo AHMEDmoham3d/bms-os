@@ -146,11 +146,6 @@ export default function NoteModal({ isOpen, onClose, note, onUpdateNote, categor
               <label className="text-xs font-bold text-slate-700 mb-1 block uppercase tracking-wide">Priority</label>
               <select 
                 value={note?.priority || 'medium'} 
-                onChange={(e) => {
-                  if (onUpdateNote && note) {
-                    onUpdateNote(note.id, { priority: e.target.value as 'low' | 'medium' | 'high' });
-                  }
-                }}
                 className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 ring-blue-500 focus:border-blue-500 text-sm font-semibold bg-white"
               >
                 <option value="low">Low</option>
@@ -159,16 +154,12 @@ export default function NoteModal({ isOpen, onClose, note, onUpdateNote, categor
               </select>
             </div>
             <div>
-              <label className="text-xs font-bold text-slate-700 mb-1 uppercase tracking-wide flex items-center gap-1 cursor-pointer">
+              <label className="text-xs font-bold text-slate-700 mb-1 uppercase tracking-wide flex items-center gap-1">
                 <input 
                   type="checkbox" 
                   checked={note?.pinned || false}
-                  onChange={(e) => {
-                    if (onUpdateNote && note) {
-                      onUpdateNote(note.id, { pinned: e.target.checked });
-                    }
-                  }}
                   className="w-4 h-4 rounded focus:ring-2 ring-blue-500"
+                  disabled
                 />
                 Pinned
               </label>
@@ -270,11 +261,6 @@ export default function NoteModal({ isOpen, onClose, note, onUpdateNote, categor
               <label className="text-xs font-bold text-slate-700 mb-1 block uppercase tracking-wide">Priority</label>
               <select 
                 value={note?.priority || 'medium'} 
-                onChange={(e) => {
-                  if (onUpdateNote && note) {
-                    onUpdateNote(note.id, { priority: e.target.value as 'low' | 'medium' | 'high' });
-                  }
-                }}
                 className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 ring-blue-500 focus:border-blue-500 text-sm font-semibold bg-white"
               >
                 <option value="low">Low</option>
@@ -283,16 +269,12 @@ export default function NoteModal({ isOpen, onClose, note, onUpdateNote, categor
               </select>
             </div>
             <div>
-              <label className="text-xs font-bold text-slate-700 mb-1 uppercase tracking-wide flex items-center gap-1 cursor-pointer">
+              <label className="text-xs font-bold text-slate-700 mb-1 uppercase tracking-wide flex items-center gap-1">
                 <input 
                   type="checkbox" 
                   checked={note?.pinned || false}
-                  onChange={(e) => {
-                    if (onUpdateNote && note) {
-                      onUpdateNote(note.id, { pinned: e.target.checked });
-                    }
-                  }}
                   className="w-4 h-4 rounded focus:ring-2 ring-blue-500"
+                  disabled
                 />
                 Pinned
               </label>
@@ -375,3 +357,4 @@ export default function NoteModal({ isOpen, onClose, note, onUpdateNote, categor
     </div>
   );
 }
+
