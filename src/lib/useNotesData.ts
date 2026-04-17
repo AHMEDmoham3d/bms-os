@@ -2,12 +2,13 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from './supabase';
 import type { Category, Note } from './types';
 
-export interface NotesData {
-  categories: Category[];
+
   notesByCategory: Record<number, Note[]>;
+  allNotes: Note[];
   loading: boolean;
   error: string | null;
   refetch: () => void;
+  getPrevNextNote: (categoryId: number, currentId: number) => { prev?: Note, next?: Note };
 }
 
 export function useNotesData() {
@@ -53,11 +54,11 @@ export function useNotesData() {
         throw notesError;
       }
 
-      const allNotes: Note[] = (allNotesData || []).map(note => ({
+      const allNotes: Note[] = (allNotesData || []).map((note: any) => ({
         ...note,
-        tags: (note as any).tags || [],
-        priority: (note as any).priority || 'medium',
-        pinned: (note as any).pinned || false,
+        tags: note.tags || [],
+        priority: note.priority || 'medium' as const,
+        pinned: Boolean(note.pinned),
       })) as Note[];
 
       console.log(`✅ Loaded ${categories.length} categories, ${allNotes.length} notes`);
@@ -148,7 +149,16 @@ export function useNotesData() {
     return data;
   };
 
-  return { ...data, refetch, deleteNote, updateNote };
+  const getPrevNextNote = (categoryId: number, currentId: number) => {
+    const categoryNotes = data.allNotes.filter(n => n.category_id === categoryId);
+    const currentIndex = categoryNotes.findIndex(n => n.id === currentId);
+    return {
+      prev: currentIndex > 0 ? categoryNotes[currentIndex - 1] : undefined,
+      next: currentIndex < categoryNotes.length - 1 ? categoryNotes[currentIndex + 1] : undefined,
+    };
+  };
+
+  return { ...data, allNotes: data.notesByCategory ? Object.values(data.notesByCategory).flat() : [], refetch, deleteNote, updateNote, getPrevNextNote };
 
 }
 

@@ -1,5 +1,7 @@
-import { useEffect, useRef, useState } from 'react';
-import { X, Video, Bold, Italic, Underline, Strikethrough, List, Link2, Code, Quote, Undo, Redo, PenTool, Eye, Clock, Type, SeparatorHorizontal, Table } from 'lucide-react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useNotesData } from '../lib/useNotesData';
+import BookReader from './BookReader';
+import { X, Video, Bold, Italic, Underline, Strikethrough, List, Link2, Code, Quote, Undo, Redo, PenTool, Eye, Clock, Type, SeparatorHorizontal, Table, BookOpen } from 'lucide-react';
 import type { Note, Category } from '../lib/types';
 
 interface NoteModalProps {
@@ -7,24 +9,29 @@ interface NoteModalProps {
   onClose: () => void;
   note: Note | null;
   onUpdateNote?: (noteId: number, updates: Partial<Note>) => Promise<void>;
-  categories?: Category[];
+  categories: Category[];
+  allNotes: Note[];
+  selectedCategoryId: number;
 }
 
-export default function NoteModal({ isOpen, onClose, note, onUpdateNote, categories = [] }: NoteModalProps) {
+export default function NoteModal({ isOpen, onClose, note, onUpdateNote, categories, allNotes, selectedCategoryId }: NoteModalProps) {
   const [content, setContent] = useState('');
   const [isPreview, setIsPreview] = useState(false);
   const [isDrawing, setIsDrawing] = useState(false);
   const [drawColor, setDrawColor] = useState('#000000');
   const [category, setCategory] = useState('');
+  const [currentNote, setCurrentNote] = useState<Note | null>(null);
   const editableRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const ctxRef = useRef<CanvasRenderingContext2D | null>(null);
+  const { getPrevNextNote } = useNotesData();
 
   useEffect(() => {
     if (note) {
       setContent(note.content || '');
       const cat = categories.find(c => c.id === note.category_id);
       setCategory(cat?.name || 'General');
+      setCurrentNote(note);
     }
   }, [note, categories]);
 
@@ -42,14 +49,14 @@ export default function NoteModal({ isOpen, onClose, note, onUpdateNote, categor
     }
   }, [drawColor]);
 
-  const formatText = (command: string, value?: string) => {
+  const formatText = useCallback((command: string, value?: string) => {
     if (editableRef.current) {
       document.execCommand(command, false, value);
       editableRef.current.focus();
     }
-  };
+  }, []);
 
-  const handleDrawing = (e: React.MouseEvent) => {
+  const handleDrawing = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
     if (!ctxRef.current || !isDrawing) return;
     const canvas = canvasRef.current!;
     const rect = canvas.getBoundingClientRect();
@@ -66,22 +73,36 @@ export default function NoteModal({ isOpen, onClose, note, onUpdateNote, categor
       ctxRef.current.lineTo(x, y);
       ctxRef.current.stroke();
     }
-  };
+  }, [isDrawing]);
 
-  const clearCanvas = () => {
+  const clearCanvas = useCallback(() => {
     if (canvasRef.current) {
       const ctx = canvasRef.current.getContext('2d');
-      if (ctx) ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+      if (ctx) ctx.clearRect(0, 0, canvasRef.current!.width, canvasRef.current!.height);
     }
-  };
+  }, []);
 
-  const saveChanges = async () => {
+  const saveChanges = useCallback(async () => {
     if (note && onUpdateNote && editableRef.current) {
       const newContent = editableRef.current.innerHTML;
       await onUpdateNote(note.id, { content: newContent });
     }
     onClose();
-  };
+  }, [note, onUpdateNote, onClose]);
+
+  const handleNextNote = useCallback(() => {
+    if (currentNote && note) {
+      const { next } = getPrevNextNote(selectedCategoryId, note.id);
+      if (next) setCurrentNote(next);
+    }
+  }, [currentNote, note, getPrevNextNote, selectedCategoryId]);
+
+  const handlePrevNote = useCallback(() => {
+    if (currentNote && note) {
+      const { prev } = getPrevNextNote(selectedCategoryId, note.id);
+      if (prev) setCurrentNote(prev);
+    }
+  }, [currentNote, note, getPrevNextNote, selectedCategoryId]);
 
   if (!isOpen || !note) return null;
 
@@ -112,7 +133,7 @@ export default function NoteModal({ isOpen, onClose, note, onUpdateNote, categor
         <div className="p-6 sm:p-8 border-b border-slate-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="flex flex-col gap-2">
             <h2 className="text-2xl sm:text-3xl font-black text-slate-900 leading-tight">
-              {note.title}
+              {currentNote?.title || note.title}
             </h2>
             <div className="flex items-center gap-4 text-sm text-slate-500">
               <span className="inline-flex px-3 py-1 bg-slate-100 text-slate-700 rounded-full font-semibold">
@@ -147,6 +168,7 @@ export default function NoteModal({ isOpen, onClose, note, onUpdateNote, categor
               <select 
                 value={note?.priority || 'medium'} 
                 className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 ring-blue-500 focus:border-blue-500 text-sm font-semibold bg-white"
+                disabled
               >
                 <option value="low">Low</option>
                 <option value="medium">Medium</option>
@@ -167,7 +189,7 @@ export default function NoteModal({ isOpen, onClose, note, onUpdateNote, categor
             <div>
               <label className="text-xs font-bold text-slate-700 mb-1 block uppercase tracking-wide">Tags</label>
               <div className="flex flex-wrap gap-1">
-                {(note?.tags || []).map((tag, i) => (
+                {(note?.tags || []).map((tag: string, i: number) => (
                   <span key={i} className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full font-medium">
                     {tag}
                   </span>
@@ -177,41 +199,26 @@ export default function NoteModal({ isOpen, onClose, note, onUpdateNote, categor
           </div>
         </div>
 
-        {/* Toolbar */}
+        {/* Toolbar - only show in edit mode */}
         {!isPreview && (
           <div className="flex flex-wrap gap-1 sm:gap-2 p-4 bg-gradient-to-r from-slate-50 to-blue-50 border-b border-slate-200">
-            <button type="button" className="p-2 sm:p-3 hover:bg-blue-200 rounded-xl transition-all flex items-center gap-1" onClick={() => formatText('bold')} title="Bold (Ctrl+B)">
-              <Bold className="w-4 h-4" /> <span className="hidden sm:inline">B</span>
+            <button type="button" className="p-2 sm:p-3 hover:bg-blue-200 rounded-xl transition-all flex items-center gap-1" onClick={() => formatText('bold')} title="Bold">
+              <Bold className="w-4 h-4" />
             </button>
-            <button type="button" className="p-3 hover:bg-blue-200 rounded-xl transition-all flex items-center gap-1" onClick={() => formatText('italic')} title="Italic (Ctrl+I)">
-              <Italic className="w-4 h-4" /> <span className="hidden sm:inline">I</span>
+            <button type="button" className="p-3 hover:bg-blue-200 rounded-xl transition-all flex items-center gap-1" onClick={() => formatText('italic')} title="Italic">
+              <Italic className="w-4 h-4" />
             </button>
-            <button type="button" className="p-3 hover:bg-blue-200 rounded-xl transition-all" onClick={() => formatText('formatBlock', 'h1')} title="عنوان رئيسي">
+            <button type="button" className="p-3 hover:bg-blue-200 rounded-xl transition-all" onClick={() => formatText('formatBlock', 'h1')} title="H1">
               <Type className="w-4 h-4" />
             </button>
-            <button type="button" className="p-3 hover:bg-blue-200 rounded-xl transition-all" onClick={() => formatText('formatBlock', 'h2')} title="عنوان جانبي">
+            <button type="button" className="p-3 hover:bg-blue-200 rounded-xl transition-all" onClick={() => formatText('formatBlock', 'h2')} title="H2">
               <Type className="w-4 h-4 scale-75" />
             </button>
-            <button type="button" className="p-3 hover:bg-blue-200 rounded-xl transition-all" onClick={() => formatText('insertHorizontalRule')} title="خط فاصل">
+            <button type="button" className="p-3 hover:bg-blue-200 rounded-xl transition-all" onClick={() => formatText('insertHorizontalRule')} title="Divider">
               <SeparatorHorizontal className="w-4 h-4" />
             </button>
-            <button type="button" className="p-3 hover:bg-blue-200 rounded-xl transition-all flex items-center gap-1" onClick={() => formatText('underline')} title="Underline">
-              <Underline className="w-4 h-4" /> <span className="hidden sm:inline">U</span>
-            </button>
-            <button type="button" className="p-3 hover:bg-blue-200 rounded-xl transition-all" onClick={() => {
-              const tableHtml = '<table border="1" style="border-collapse: collapse;"><tr><td>Cell 1</td><td>Cell 2</td></tr><tr><td>Cell 3</td><td>Cell 4</td></tr></table>';
-              formatText('insertHTML', tableHtml);
-            }} title="جدول">
-              <Table className="w-4 h-4" />
-            </button>
-            <button type="button" className="p-3 hover:bg-blue-200 rounded-xl transition-all" onClick={() => formatText('strikeThrough')} title="Strikethrough">
-              <Strikethrough className="w-4 h-4" />
-            </button>
-            <button type="button" className="p-3 hover:bg-blue-200 rounded-xl transition-all" onClick={() => formatText('insertUnorderedList')} title="Bullet List">
+            <button type="button" className="p-3 hover:bg-blue-200 rounded-xl transition-all" onClick={() => formatText('insertUnorderedList')} title="List">
               <List className="w-4 h-4" />
-            </button>
-            <button type="button" className="p-3 hover:bg-blue-200 rounded-xl transition-all" onClick={() => formatText('insertOrderedList')} title="Numbered List">
-              <List className="w-4 h-4 rotate-180" />
             </button>
             <button type="button" className="p-3 hover:bg-blue-200 rounded-xl transition-all" onClick={() => {
               const url = prompt('Enter URL:');
@@ -219,140 +226,117 @@ export default function NoteModal({ isOpen, onClose, note, onUpdateNote, categor
             }} title="Link">
               <Link2 className="w-4 h-4" />
             </button>
-            <button type="button" className="p-3 hover:bg-blue-200 rounded-xl transition-all" onClick={() => formatText('insertHTML', '<code></code>')} title="Code">
-              <Code className="w-4 h-4" />
-            </button>
-            <button type="button" className="p-3 hover:bg-blue-200 rounded-xl transition-all" onClick={() => formatText('formatBlock', 'blockquote')} title="Quote">
-              <Quote className="w-4 h-4" />
-            </button>
-            {/* Undo/Redo */}
             <button type="button" className="p-3 hover:bg-blue-200 rounded-xl transition-all" onClick={() => formatText('undo')} title="Undo">
               <Undo className="w-4 h-4" />
             </button>
             <button type="button" className="p-3 hover:bg-blue-200 rounded-xl transition-all" onClick={() => formatText('redo')} title="Redo">
               <Redo className="w-4 h-4" />
             </button>
-            <div className="w-px h-8 bg-blue-200 mx-2 hidden sm:block" />
-            {/* Drawing */}
-            <button type="button" className="p-3 hover:bg-blue-200 rounded-xl transition-all flex items-center gap-1" onClick={() => setIsDrawing(!isDrawing)} title="Toggle Drawing">
-              <PenTool className="w-4 h-4" />
-            </button>
-            {isDrawing && (
-              <div className="flex items-center gap-1 p-2 bg-white rounded-xl border shadow-sm">
-                <input type="color" value={drawColor} onChange={(e) => setDrawColor(e.target.value)} className="w-8 h-8 rounded-lg cursor-pointer" />
-                <button onClick={clearCanvas} className="p-1 hover:bg-slate-200 rounded-lg" title="Clear">
-                  <X className="w-3 h-3" />
-                </button>
-              </div>
-            )}
-            {/* Preview */}
-            <div className="flex items-center gap-2 p-3 bg-white rounded-xl border ml-auto">
-              <button type="button" className="p-2 hover:bg-slate-100 rounded-xl" onClick={() => setIsPreview(!isPreview)} title="Toggle Preview">
-                <Eye className="w-4 h-4" />
+            <div className="flex items-center gap-2 p-2 bg-white rounded-xl border ml-auto">
+              <button type="button" className="p-2 hover:bg-slate-100 rounded-xl" onClick={() => setIsDrawing(!isDrawing)} title="Drawing">
+                <PenTool className="w-4 h-4" />
+              </button>
+              <button type="button" className="p-2 hover:bg-slate-100 rounded-xl" onClick={() => setIsPreview(!isPreview)} title="Book Mode">
+                <BookOpen className="w-4 h-4" />
               </button>
             </div>
           </div>
         )}
 
-        {/* Pro Fields Panel */}
-        <div className="p-6 border-b border-slate-200 bg-gradient-to-r from-slate-50/70 to-blue-50/70">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <label className="text-xs font-bold text-slate-700 mb-1 block uppercase tracking-wide">Priority</label>
-              <select 
-                value={note?.priority || 'medium'} 
-                className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 ring-blue-500 focus:border-blue-500 text-sm font-semibold bg-white"
-              >
-                <option value="low">Low</option>
-                <option value="medium">Medium</option>
-                <option value="high">High</option>
-              </select>
-            </div>
-            <div>
-              <label className="text-xs font-bold text-slate-700 mb-1 uppercase tracking-wide flex items-center gap-1">
-                <input 
-                  type="checkbox" 
-                  checked={note?.pinned || false}
-                  className="w-4 h-4 rounded focus:ring-2 ring-blue-500"
-                  disabled
+        {/* Edit Area */}
+        {!isPreview && (
+          <div className="flex-1 min-h-0 p-6 sm:p-8 overflow-y-auto">
+            <div 
+              contentEditable 
+              ref={editableRef} 
+              suppressContentEditableWarning={true}
+              className="prose prose-slate max-w-none mb-8 leading-relaxed min-h-[400px] outline-none focus:outline-none p-6 border-2 border-dashed border-slate-200 rounded-3xl bg-gradient-to-br from-slate-50 to-white shadow-inner focus:border-blue-500 focus:ring-4 ring-blue-200/50"
+              dir="auto"
+              onInput={(e) => setContent(e.currentTarget.innerHTML)}
+              dangerouslySetInnerHTML={{ __html: content }}
+            />
+            {isDrawing && (
+              <div className="mt-6 p-6 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-3xl border-2 border-indigo-200 shadow-lg">
+                <canvas 
+                  ref={canvasRef}
+                  width={800}
+                  height={400}
+                  className="w-full h-64 border-2 border-indigo-300 rounded-2xl shadow-lg cursor-crosshair bg-white"
+                  onMouseDown={handleDrawing}
+                  onMouseMove={handleDrawing}
+                  onMouseUp={() => ctxRef.current?.closePath()}
+                  onMouseLeave={() => ctxRef.current?.closePath()}
                 />
-                Pinned
-              </label>
-            </div>
-            <div>
-              <label className="text-xs font-bold text-slate-700 mb-1 block uppercase tracking-wide">Tags</label>
-              <div className="flex flex-wrap gap-1">
-                {(note?.tags || []).map((tag, i) => (
-                  <span key={i} className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full font-medium">
-                    {tag}
-                  </span>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Scrollable Content */}
-        <div className="flex-1 min-h-0 p-6 sm:p-8 overflow-y-auto">
-          {!isPreview ? (
-            <>
-              <div contentEditable 
-                   ref={editableRef} 
-                   suppressContentEditableWarning={true}
-                   className="prose prose-slate max-w-none mb-8 leading-relaxed min-h-[200px] outline-none focus:outline-none p-4 border border-slate-200 rounded-xl bg-slate-50/50"
-                   dir="auto"
-                   onInput={(e) => setContent(e.currentTarget.innerHTML)}
-                   dangerouslySetInnerHTML={{ __html: content }}
-              />
-              {isDrawing && (
-                <div className="mt-6 p-4 bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200">
-                  <canvas 
-                    ref={canvasRef}
-                    width={800}
-                    height={400}
-                    className="w-full max-w-md mx-auto block border rounded-xl shadow-lg cursor-crosshair"
-                    onMouseDown={handleDrawing}
-                    onMouseMove={handleDrawing}
-                    onMouseUp={() => ctxRef.current?.closePath()}
-                    onMouseLeave={() => ctxRef.current?.closePath()}
-                  />
+                <div className="flex gap-3 mt-4 pt-4 border-t border-indigo-200">
+                  <button onClick={clearCanvas} className="flex-1 p-3 bg-red-100 hover:bg-red-200 text-red-800 rounded-xl">
+                    Clear Canvas
+                  </button>
+                  <button onClick={() => {
+                    if (ctxRef.current && editableRef.current && canvasRef.current) {
+                      const dataUrl = canvasRef.current.toDataURL();
+                      document.execCommand('insertImage', false, dataUrl);
+                      setContent(editableRef.current.innerHTML);
+                      clearCanvas();
+                      setIsDrawing(false);
+                    }
+                  }} className="flex-1 p-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-xl font-bold shadow-lg hover:shadow-xl">
+                    Insert Drawing
+                  </button>
                 </div>
-              )}
-            </>
-          ) : (
-            <div className="prose prose-slate max-w-none mb-8 leading-relaxed p-4 border border-slate-200 rounded-xl bg-white shadow-inner" 
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Book Reader or Preview */}
+        {isPreview && currentNote && (
+          <BookReader
+            note={currentNote}
+            notes={allNotes}
+            categoryId={selectedCategoryId}
+            isOpen={true}
+            onClose={() => setIsPreview(false)}
+            onNextNote={handleNextNote}
+            onPrevNote={handlePrevNote}
+          />
+        )}
+
+        {/* Simple Preview Fallback */}
+        {isPreview && !currentNote && (
+          <div className="flex-1 p-8 overflow-y-auto">
+            <div className="prose prose-slate max-w-none leading-relaxed p-8 border border-slate-200 rounded-3xl bg-gradient-to-br from-white to-slate-50 shadow-inner prose-headings:font-black prose-headings:text-slate-900" 
                  dangerouslySetInnerHTML={{ __html: content }} 
                  dir="auto" />
-          )}
+          </div>
+        )}
 
-          {/* Media */}
-          {note.image && (
-            <div className="my-6 rounded-2xl overflow-hidden border shadow-lg">
-              <img 
-                src={note.image} 
-                alt="Note attachment"
-                className="w-full h-64 sm:h-80 md:h-96 object-contain bg-slate-50"
-                onError={(e) => {
-                  console.warn('Image load failed:', note.image);
-                  e.currentTarget.style.display = 'none';
-                }}
-              />
-            </div>
-          )}
-          {note.video_url && (
-            <div className="my-6 p-6 bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200 text-center">
-              <a 
-                href={note.video_url} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-3 px-6 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5"
-              >
-                <Video className="w-5 h-5" />
-                Watch Video
-              </a>
-            </div>
-          )}
-        </div>
+        {/* Media */}
+        {(note.image || note.video_url) && !isPreview && (
+          <div className="p-6 border-t border-slate-200">
+            {note.image && (
+              <div className="mb-6 rounded-3xl overflow-hidden border shadow-xl">
+                <img 
+                  src={note.image} 
+                  alt="Note image"
+                  className="w-full h-64 object-cover"
+                />
+              </div>
+            )}
+            {note.video_url && (
+              <div className="p-8 bg-gradient-to-br from-slate-50 to-slate-100 rounded-3xl border-2 border-dashed border-slate-200 text-center">
+                <a 
+                  href={note.video_url} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-3 px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-bold shadow-lg hover:shadow-2xl transition-all"
+                >
+                  <Video className="w-6 h-6" />
+                  Play Video
+                </a>
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

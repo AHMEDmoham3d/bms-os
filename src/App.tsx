@@ -40,7 +40,8 @@ function NotesPage() {
   const [selectedCategoryId, setSelectedCategoryId] = useState(0);
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
-  const { categories, notesByCategory, loading, error, refetch, deleteNote, updateNote } = useNotesData();
+  const notesData = useNotesData();
+  const { categories, notesByCategory, loading, error, refetch, deleteNote, updateNote, allNotes, getPrevNextNote } = notesData;
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -196,7 +197,10 @@ function NotesPage() {
                 note={selectedNote}
                 onUpdateNote={handleUpdateNote}
                 categories={categories}
+                allNotes={allNotes}
+                selectedCategoryId={selectedCategoryId}
               />
+
             )}
 
             {categories.length === 0 && (
