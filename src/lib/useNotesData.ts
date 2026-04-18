@@ -2,22 +2,28 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from './supabase';
 import type { Category, Note } from './types';
 
-
+interface NotesData {
+  categories: Category[];
   notesByCategory: Record<number, Note[]>;
   allNotes: Note[];
   loading: boolean;
   error: string | null;
   refetch: () => void;
-  getPrevNextNote: (categoryId: number, currentId: number) => { prev?: Note, next?: Note };
+  getPrevNextNote: (categoryId: number, currentId: number) => { prev?: Note; next?: Note };
 }
 
+
 export function useNotesData() {
-  const [data, setData] = useState({
-    categories: [] as Category[],
-    notesByCategory: {} as Record<number, Note[]>,
+  const [data, setData] = useState<NotesData>({
+    categories: [],
+    notesByCategory: {},
     loading: true,
-    error: null as string | null,
+    error: null,
+    allNotes: [],
+    refetch: () => {},
+    getPrevNextNote: () => ({ prev: undefined, next: undefined }),
   });
+
 
   const fetchAllData = useCallback(async () => {
     try {
@@ -72,9 +78,13 @@ export function useNotesData() {
       setData({
         categories,
         notesByCategory,
+        allNotes,
         loading: false,
         error: null,
+        refetch,
+        getPrevNextNote,
       });
+
     } catch (err) {
       console.error('💥 Full Supabase fetch failed:', err as Error);
       
@@ -82,10 +92,14 @@ export function useNotesData() {
       setData({
         categories: [],
         notesByCategory: {},
+        allNotes: [],
         loading: false,
         error: 'Supabase connection failed. Check console for details.',
+        refetch,
+        getPrevNextNote,
       });
       return;
+
     }
   }, []);
 

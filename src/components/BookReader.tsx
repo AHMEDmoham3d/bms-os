@@ -1,4 +1,5 @@
-import { X, BookOpen, Moon, Sun, Download, Search, Menu, ChevronLeft, ChevronRight } from 'lucide-react';
+import { X, BookOpen, Moon, Sun, Download, Search, Menu, ChevronLeft, ChevronRight, PenTool } from 'lucide-react';
+
 import React, { useState, useRef, useEffect } from 'react';
 import type { Note } from '../lib/types';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -10,7 +11,9 @@ interface BookReaderProps {
   isOpen: boolean;
   onClose: () => void;
   onNextNote: () => void;
-  onPrevNote: () => void;
+onPrevNote: () => void;
+  onEdit?: () => void;
+
 }
 
 export default function BookReader({ 
@@ -20,8 +23,10 @@ export default function BookReader({
   isOpen, 
   onClose, 
   onNextNote, 
-  onPrevNote 
+  onPrevNote, 
+  onEdit 
 }: BookReaderProps) {
+
   const [theme, setTheme] = useState<'day' | 'night'>('day');
   const [fontFamily, setFontFamily] = useState<'serif' | 'sans'>('serif');
   const [fontSize, setFontSize] = useState(16);
@@ -121,6 +126,16 @@ export default function BookReader({
               
               {/* Controls */}
               <div className="flex items-center gap-2">
+                {/* Edit Button */}
+                {onEdit && (
+                  <button
+                    onClick={onEdit}
+                    className="p-2 hover:bg-emerald-200 rounded-xl"
+                    title="Edit Note"
+                  >
+                    <PenTool className="w-5 h-5 text-emerald-600" />
+                  </button>
+                )}
                 {/* Theme Toggle */}
                 <button
                   onClick={() => setTheme(t => t === 'day' ? 'night' : 'day')}
@@ -129,6 +144,7 @@ export default function BookReader({
                 >
                   {theme === 'day' ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
                 </button>
+
                 
                 {/* Font Toggle */}
                 <select

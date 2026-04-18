@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNotesData } from '../lib/useNotesData';
 import BookReader from './BookReader';
-import { X, Video, Bold, Italic, Underline, Strikethrough, List, Link2, Code, Quote, Undo, Redo, PenTool, Eye, Clock, Type, SeparatorHorizontal, Table, BookOpen } from 'lucide-react';
+import { X, Video, Bold, Italic, List, Link2, Undo, Redo, PenTool, Clock, Type, SeparatorHorizontal, BookOpen } from 'lucide-react';
+
 import type { Note, Category } from '../lib/types';
 
 interface NoteModalProps {
@@ -17,9 +18,12 @@ interface NoteModalProps {
 export default function NoteModal({ isOpen, onClose, note, onUpdateNote, categories, allNotes, selectedCategoryId }: NoteModalProps) {
   const [content, setContent] = useState('');
   const [isPreview, setIsPreview] = useState(false);
+  const [showMetadata, setShowMetadata] = useState(false);
   const [isDrawing, setIsDrawing] = useState(false);
-  const [drawColor, setDrawColor] = useState('#000000');
+  const [drawColor] = useState('#000000');
+
   const [category, setCategory] = useState('');
+
   const [currentNote, setCurrentNote] = useState<Note | null>(null);
   const editableRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -34,6 +38,14 @@ export default function NoteModal({ isOpen, onClose, note, onUpdateNote, categor
       setCurrentNote(note);
     }
   }, [note, categories]);
+
+  useEffect(() => {
+    if (isOpen) {
+      setIsPreview(true);
+      setShowMetadata(false);
+    }
+  }, [isOpen]);
+
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -151,6 +163,13 @@ export default function NoteModal({ isOpen, onClose, note, onUpdateNote, categor
               Save
             </button>
             <button
+              onClick={() => setShowMetadata(!showMetadata)}
+              className="p-2 hover:bg-slate-100 rounded-xl transition-all group"
+              title="Toggle Metadata"
+            >
+              <PenTool className={`w-6 h-6 transition-colors ${showMetadata ? 'text-slate-900' : 'text-slate-500'}`} />
+            </button>
+            <button
               onClick={onClose}
               className="p-2 hover:bg-slate-100 rounded-xl transition-all group ml-2"
               aria-label="Close"
@@ -160,44 +179,50 @@ export default function NoteModal({ isOpen, onClose, note, onUpdateNote, categor
           </div>
         </div>
 
-        {/* Pro Fields Panel */}
-        <div className="p-6 border-b border-slate-200 bg-gradient-to-r from-slate-50/70 to-blue-50/70">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <label className="text-xs font-bold text-slate-700 mb-1 block uppercase tracking-wide">Priority</label>
-              <select 
-                value={note?.priority || 'medium'} 
-                className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 ring-blue-500 focus:border-blue-500 text-sm font-semibold bg-white"
-                disabled
-              >
-                <option value="low">Low</option>
-                <option value="medium">Medium</option>
-                <option value="high">High</option>
-              </select>
-            </div>
-            <div>
-              <label className="text-xs font-bold text-slate-700 mb-1 uppercase tracking-wide flex items-center gap-1">
-                <input 
-                  type="checkbox" 
-                  checked={note?.pinned || false}
-                  className="w-4 h-4 rounded focus:ring-2 ring-blue-500"
+
+{showMetadata && (
+        <>
+          {/* Pro Fields Panel */}
+          <div className="p-6 border-b border-slate-200 bg-gradient-to-r from-slate-50/70 to-blue-50/70">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label className="text-xs font-bold text-slate-700 mb-1 block uppercase tracking-wide">Priority</label>
+                <select 
+                  value={note?.priority || 'medium'} 
+                  className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 ring-blue-500 focus:border-blue-500 text-sm font-semibold bg-white"
                   disabled
-                />
-                Pinned
-              </label>
-            </div>
-            <div>
-              <label className="text-xs font-bold text-slate-700 mb-1 block uppercase tracking-wide">Tags</label>
-              <div className="flex flex-wrap gap-1">
-                {(note?.tags || []).map((tag: string, i: number) => (
-                  <span key={i} className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full font-medium">
-                    {tag}
-                  </span>
-                ))}
+                >
+                  <option value="low">Low</option>
+                  <option value="medium">Medium</option>
+                  <option value="high">High</option>
+                </select>
+              </div>
+              <div>
+                <label className="text-xs font-bold text-slate-700 mb-1 uppercase tracking-wide flex items-center gap-1">
+                  <input 
+                    type="checkbox" 
+                    checked={note?.pinned || false}
+                    className="w-4 h-4 rounded focus:ring-2 ring-blue-500"
+                    disabled
+                  />
+                  Pinned
+                </label>
+              </div>
+              <div>
+                <label className="text-xs font-bold text-slate-700 mb-1 block uppercase tracking-wide">Tags</label>
+                <div className="flex flex-wrap gap-1">
+                  {(note?.tags || []).map((tag: string, i: number) => (
+                    <span key={i} className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full font-medium">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        </>
+      )}
+
 
         {/* Toolbar - only show in edit mode */}
         {!isPreview && (
@@ -298,7 +323,9 @@ export default function NoteModal({ isOpen, onClose, note, onUpdateNote, categor
             onClose={() => setIsPreview(false)}
             onNextNote={handleNextNote}
             onPrevNote={handlePrevNote}
+            onEdit={() => setIsPreview(false)}
           />
+
         )}
 
         {/* Simple Preview Fallback */}

@@ -1,29 +1,20 @@
-# Book-Like Notes Implementation - COMPLETE ✅
+# TODO: Book-Like Notes Enhancement (Approved)
 
-Notes now function like an interactive digital book:
+## Status: ✅ Complete
 
-## Key Features Added:
-- **BookReader Component**: Paper textures, day/night themes, TOC from headings, reading progress, keyboard navigation (arrows/Esc)
-- **Typography Controls**: Serif/sans fonts, adjustable font size, justified text
-- **Page Navigation**: Prev/next note in category, page numbers
-- **Animations**: Page turn effects (framer-motion), smooth transitions
-- **Enhanced Modal**: Book mode toggle in note preview, drawing integration
+### Steps:
+- ✅ **1** Create this TODO.md
+- ✅ **2** Edit src/components/NoteModal.tsx 
+  - Add state/useState for showMetadata
+  - Add toggle button in header
+  - Conditionally render metadata div
+  - Default isPreview=true on mount
+- ✅ **3** Edit src/components/BookReader.tsx
+  - Add Edit button in controls calling onEdit prop
+- ✅ **4** Update NoteModal to pass onEdit to BookReader
+- ✅ **5** Test: Open modal → full book view, toggle metadata, edit
+- ✅ **6** Update this TODO & attempt_completion
 
-## How to Use:
-1. Open Notes page
-2. Click any note card to open modal
-3. Click BookOpen icon (📖) in toolbar to enter book reading mode
-4. Use arrow keys to navigate between notes, ESC to exit
-5. Adjust theme/font in reader header
+**Goal**: Metadata collapsible, default book reader, no content hiding. ✅ Achieved.
 
-## Files Updated:
-- `src/components/BookReader.tsx` ✅
-- `src/lib/useNotesData.ts` ✅ (prev/next helpers)
-- `src/App.tsx` ✅ (props wiring)
-- `src/components/NoteModal.tsx` ✅ (toggle + integration)
-
-**npm run dev** to test. Arabic RTL fully supported.
-
-All TS errors fixed. Feature complete!
-
-
+Now note modals open in book-like reader by default (full content visible like a book), metadata (priority/tags/pinned) is hidden by default but toggleable with pen icon, easy edit/add with rich toolbar/drawing, no hiding issues.
