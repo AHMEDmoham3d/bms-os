@@ -41,7 +41,7 @@ function NotesPage() {
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
   const notesData = useNotesData();
-  const { categories, notesByCategory, loading, error, refetch, deleteNote, updateNote, allNotes, getPrevNextNote } = notesData;
+  const { categories = [], notesByCategory, loading, error, refetch, deleteNote, updateNote } = notesData as { categories: Array<{ id: number; name: string }>; notesByCategory: Record<number, Note[]>; loading: boolean; error: string | null; refetch: () => void; deleteNote: (id: number) => void; updateNote: (id: number, updates: Partial<Note>) => Promise<void> };
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -58,12 +58,12 @@ function NotesPage() {
   }, []);
 
   const categoryNoteCounts = Object.fromEntries(
-    Object.entries(notesByCategory).map(([k, v]) => [parseInt(k), v.length])
+    Object.entries(notesByCategory).map(([k, v]) => [parseInt(k), (v as Note[]).length])
   ) as Record<number, number>;
   const totalNotes = Object.values(categoryNoteCounts).reduce((sum, count) => sum + count, 0);
 
   const selectedCategory = categories.find(c => c.id === selectedCategoryId);
-  const currentNotes = selectedCategoryId ? (notesByCategory[selectedCategoryId] || []) : [];
+  const currentNotes = selectedCategoryId ? ((notesByCategory as Record<number, Note[]>)[selectedCategoryId] || []) : [];
 
   const handleCategorySelect = (categoryId: number) => {
     setSelectedCategoryId(categoryId);
@@ -197,10 +197,7 @@ function NotesPage() {
                 note={selectedNote}
                 onUpdateNote={handleUpdateNote}
                 categories={categories}
-                allNotes={allNotes}
-                selectedCategoryId={selectedCategoryId}
               />
-
             )}
 
             {categories.length === 0 && (

@@ -9,7 +9,6 @@ interface NotesData {
   loading: boolean;
   error: string | null;
   refetch: () => void;
-  getPrevNextNote: (categoryId: number, currentId: number) => { prev?: Note; next?: Note };
 }
 
 
@@ -21,7 +20,6 @@ export function useNotesData() {
     error: null,
     allNotes: [],
     refetch: () => {},
-    getPrevNextNote: () => ({ prev: undefined, next: undefined }),
   });
 
 
@@ -82,7 +80,6 @@ export function useNotesData() {
         loading: false,
         error: null,
         refetch,
-        getPrevNextNote,
       });
 
     } catch (err) {
@@ -96,7 +93,6 @@ export function useNotesData() {
         loading: false,
         error: 'Supabase connection failed. Check console for details.',
         refetch,
-        getPrevNextNote,
       });
       return;
 
@@ -163,16 +159,8 @@ export function useNotesData() {
     return data;
   };
 
-  const getPrevNextNote = (categoryId: number, currentId: number) => {
-    const categoryNotes = data.allNotes.filter(n => n.category_id === categoryId);
-    const currentIndex = categoryNotes.findIndex(n => n.id === currentId);
-    return {
-      prev: currentIndex > 0 ? categoryNotes[currentIndex - 1] : undefined,
-      next: currentIndex < categoryNotes.length - 1 ? categoryNotes[currentIndex + 1] : undefined,
-    };
-  };
+  return { ...data, allNotes: data.notesByCategory ? Object.values(data.notesByCategory).flat() : [], refetch, deleteNote, updateNote };
 
-  return { ...data, allNotes: data.notesByCategory ? Object.values(data.notesByCategory).flat() : [], refetch, deleteNote, updateNote, getPrevNextNote };
 
 }
 
