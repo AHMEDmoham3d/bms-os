@@ -49,10 +49,19 @@ export function useNotesData() {
       const categories: Category[] = categoriesData || [];
 
       // Fetch ALL notes - limit columns for safety
-      const { data: allNotesData, error: notesError } = await supabase
+      const currentWsIdStr = localStorage.getItem('current_workspace_id');
+      const currentWsId = currentWsIdStr ? parseInt(currentWsIdStr) : null;
+      
+      let query = supabase
         .from('notes')
-        .select('id, title, content, category_id, image, video_url, created_at')
+        .select('id, title, content, category_id, workspace_id, image, video_url, created_at, updated_at, tags, priority, pinned, template')
         .order('created_at', { ascending: false });
+
+      if (currentWsId) {
+        query = query.eq('workspace_id', currentWsId);
+      }
+
+      const { data: allNotesData, error: notesError } = await query;
 
       if (notesError) {
         console.error('💥 NOTES FETCH ERROR:');

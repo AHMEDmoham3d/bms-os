@@ -72,6 +72,7 @@ export interface Note {
   image?: string;
   video_url?: string;
   category_id: number;
+  workspace_id?: number;
   created_at: string;
   updated_at?: string;
   tags: string[];
@@ -90,7 +91,10 @@ export interface User {
 export interface Workspace {
   id: number;
   name: string;
-  default: boolean;
+  user_id: string;
+  is_default: boolean;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface AuthUser {

@@ -1,64 +1,36 @@
-import { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Layers, Plus, Trash2, SwitchCamera, Folder, Edit } from 'lucide-react';
+import { useWorkspaces } from '../lib/useWorkspaces';
 import type { Workspace } from '../lib/types';
 
 export default function Workspaces() {
-  const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
+  const {
+    workspaces,
+    currentWorkspaceId,
+    loading,
+    error,
+    createWorkspace,
+    switchWorkspace: switchWs,
+    deleteWorkspace,
+    updateWorkspace
+  } = useWorkspaces();
   const [newWorkspaceName, setNewWorkspaceName] = useState('');
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editName, setEditName] = useState('');
 
-  // Load from localStorage
-  useEffect(() => {
-    const saved = localStorage.getItem('bms_workspaces');
-    if (saved) {
-      setWorkspaces(JSON.parse(saved));
-    } else {
-      // Default workspace
-      const defaultWorkspace: Workspace = { id: 1, name: 'Personal', default: true };
-      setWorkspaces([defaultWorkspace]);
-      localStorage.setItem('bms_workspaces', JSON.stringify([defaultWorkspace]));
-    }
-  }, []);
-
-  // Save to localStorage
-  useEffect(() => {
-    if (workspaces.length > 0) {
-      localStorage.setItem('bms_workspaces', JSON.stringify(workspaces));
-    }
-  }, [workspaces]);
-
-  const createWorkspace = () => {
-    if (!newWorkspaceName.trim()) return;
-    const newId = Math.max(...workspaces.map(w => w.id), 0) + 1;
-    const newWs: Workspace = { id: newId, name: newWorkspaceName.trim(), default: false };
-    setWorkspaces([...workspaces, newWs]);
-    setNewWorkspaceName('');
-  };
-
   const switchWorkspace = (id: number) => {
-    localStorage.setItem('current_workspace_id', id.toString());
-    // Could trigger notes refetch with filter here
-    alert(`Switched to workspace: ${workspaces.find(w => w.id === id)?.name}`);
+    switchWs(id);
   };
 
-  const deleteWorkspace = (id: number) => {
-    if (workspaces.find(w => w.id === id)?.default) return alert('Cannot delete default workspace');
-    if (!confirm('Delete this workspace?')) return;
-    setWorkspaces(workspaces.filter(w => w.id !== id));
-    // Switch to default if current
-    if (localStorage.getItem('current_workspace_id') === id.toString()) {
-      switchWorkspace(1);
-    }
-  };
+  const currentWsId = currentWorkspaceId || 0;
 
-  const updateWorkspace = (id: number) => {
-    setWorkspaces(workspaces.map(w => w.id === id ? { ...w, name: editName.trim() } : w));
-    setEditingId(null);
-    setEditName('');
-  };
+  if (loading) {
+    return <div className="min-h-screen flex items-center justify-center">Loading workspaces...</div>;
+  }
 
-  const currentWsId = parseInt(localStorage.getItem('current_workspace_id') || '1');
+  if (error) {
+    return <div className="min-h-screen flex items-center justify-center text-red-600">Error: {error}</div>;
+  }
 
   return (
     <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-20 relative z-0">
@@ -125,7 +97,12 @@ export default function Workspaces() {
             className="flex-1 p-4 border border-slate-300 rounded-2xl focus:ring-4 ring-indigo-500/20 focus:border-indigo-500 text-lg font-semibold"
           />
           <button
-            onClick={createWorkspace}
+            onClick={async () => {
+              const newWs = await createWorkspace(newWorkspaceName);
+              if (newWs) {
+                setNewWorkspaceName('');
+              }
+            }}
             className="px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-2xl shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all border border-indigo-500"
             disabled={!newWorkspaceName.trim()}
           >
@@ -153,7 +130,13 @@ export default function Workspaces() {
                       autoFocus
                     />
                     <button
-                      onClick={() => updateWorkspace(workspace.id)}
+                      onClick={async () => {
+                        if (editName.trim()) {
+                          await updateWorkspace(workspace.id, editName.trim());
+                          setEditingId(null);
+                          setEditName('');
+                        }
+                      }}
                       className="p-2 hover:bg-indigo-100 rounded-xl transition-colors"
                     >
                       <svg className="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
@@ -171,7 +154,7 @@ export default function Workspaces() {
                   <>
                     <div className="flex-1 min-w-0">
                       <h3 className="text-xl font-black text-slate-900 truncate">{workspace.name}</h3>
-                      {workspace.default && (
+                      {workspace.is_default && (
                         <p className="text-xs bg-indigo-100 text-indigo-800 px-3 py-1 rounded-full font-semibold mt-1 inline-block">Default</p>
                       )}
                     </div>
@@ -187,7 +170,7 @@ export default function Workspaces() {
                 )}
               </div>
               <div className="flex items-center gap-2 ml-4">
-                {editingId !== workspace.id && !workspace.default && (
+                {editingId !== workspace.id && !workspace.is_default && (
                   <button
                     onClick={() => { setEditingId(workspace.id); setEditName(workspace.name); }}
                     className="p-2 hover:bg-slate-100 rounded-xl transition-all"
@@ -196,9 +179,9 @@ export default function Workspaces() {
                     <Edit className="w-5 h-5 text-slate-500" />
                   </button>
                 )}
-                {!workspace.default && (
+                {!workspace.is_default && (
                   <button
-                    onClick={() => deleteWorkspace(workspace.id)}
+                    onClick={async () => await deleteWorkspace(workspace.id)}
                     className="p-3 hover:bg-red-100 rounded-2xl transition-all group"
                     title="Delete"
                   >

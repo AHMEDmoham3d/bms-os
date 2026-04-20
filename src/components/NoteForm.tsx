@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { PenTool, ToggleRight, Trash2, Download } from 'lucide-react';
+import { PenTool, ToggleRight, Trash2, Download, X, Image as ImageIcon, Video, Loader2, BoldIcon, ItalicIcon, List, Link2 as Link, Code, Quote, Strikethrough, Underline, Undo, Redo, Eye, Type, SeparatorHorizontal, AlignLeft, AlignCenter, AlignRight, Indent, Outdent } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import type { Category, Note } from '../lib/types';
-import { X, Image as ImageIcon, Video, Loader2, BoldIcon, ItalicIcon, List, Link2 as Link, Code, Quote, Strikethrough, Underline, Undo, Redo, Eye, Type, SeparatorHorizontal, AlignLeft, AlignCenter, AlignRight, Indent, Outdent } from 'lucide-react';
+
 
 
 interface NoteFormProps {
@@ -23,6 +23,7 @@ export default function NoteForm({ selectedCategory, onNoteAdded, editingNote, o
     priority: 'medium' as 'low' | 'medium' | 'high',
     pinned: false,
     template: '',
+    workspace_id: null as number | null,
   });
   const [submitting, setSubmitting] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
@@ -33,7 +34,7 @@ export default function NoteForm({ selectedCategory, onNoteAdded, editingNote, o
   const [lineWidth, setLineWidth] = useState(3);
   const contentRef = useRef<HTMLDivElement>(null);
 
-  // Load data
+    // Load data
   useEffect(() => {
     if (editingNote) {
       setFormData({
@@ -45,13 +46,17 @@ export default function NoteForm({ selectedCategory, onNoteAdded, editingNote, o
         priority: editingNote.priority || 'medium',
         pinned: editingNote.pinned || false,
         template: editingNote.template || '',
+        workspace_id: editingNote.workspace_id || null,
       });
     } else {
-      setFormData({ title: '', content: '', image: '', video_url: '', tags: [], priority: 'medium', pinned: false, template: '' });
+      const currentWsIdStr = localStorage.getItem('current_workspace_id');
+      const currentWsId = currentWsIdStr ? parseInt(currentWsIdStr) : null;
+      setFormData({ 
+        title: '', content: '', image: '', video_url: '', tags: [], priority: 'medium', pinned: false, template: '',
+        workspace_id: currentWsId || null 
+      });
     }
   }, [editingNote]);
-
-
 
   const updateContent = useCallback(() => {
     if (contentRef.current) {
@@ -192,12 +197,21 @@ export default function NoteForm({ selectedCategory, onNoteAdded, editingNote, o
 
     setSubmitting(true);
     try {
-      // Simplified payload to debug 400 - removed tags/priority/pinned
+      const currentWsIdStr = localStorage.getItem('current_workspace_id');
+      const currentWsId = currentWsIdStr ? parseInt(currentWsIdStr) : null;
+      
+      // Full payload
       const payload = {
         title: formData.title.slice(0, 100),
         content: formData.content.slice(0, 10000),
-        image: (formData.image || null)?.slice(0, 500),
-        video_url: (formData.video_url || null)?.slice(0, 500),
+        image: formData.image || null,
+        video_url: formData.video_url || null,
+        tags: formData.tags,
+        priority: formData.priority,
+        pinned: formData.pinned,
+        template: formData.template || null,
+        workspace_id: currentWsId || formData.workspace_id || null,
+        category_id: selectedCategory.id,
       };
       
       console.log('🔄 Supabase payload:', payload);
