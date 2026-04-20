@@ -1,4 +1,4 @@
-# Speech-to-Text Feature Progress
+# Project reverted to original state - Speech-to-Text removed
 
 ## Steps:
 - [x] 1. Create `src/hooks/useSpeechRecognition.ts` hook
