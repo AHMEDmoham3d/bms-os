@@ -233,16 +233,16 @@ export default function NotesReportTable({
         <div className="bg-gradient-to-r from-slate-50 to-slate-100 px-6 py-4 border-b border-slate-200">
           <h3 className="text-2xl font-black text-slate-900">Notes Table ({filteredNotes.length} of {notes.length})</h3>
         </div>
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
+        <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-slate-300 scrollbar-track-slate-100">
+          <table className="w-full min-w-[600px] md:min-w-full">
+            <thead className="sticky top-0 z-10">
               <tr className="bg-slate-900 text-white">
-                <th className="px-6 py-4 text-left font-bold">Title</th>
-                <th className="px-6 py-4 text-left font-bold hidden md:table-cell">Category</th>
-                <th className="px-6 py-4 text-left font-bold">Date</th>
-                <th className="px-6 py-4 text-left font-bold hidden lg:table-cell">Priority</th>
-                <th className="px-6 py-4 text-left font-bold hidden xl:table-cell">Tags</th>
-                <th className="px-6 py-4 text-left font-bold">Actions</th>
+                <th className="px-4 py-4 text-left font-bold text-sm md:px-6">Title</th>
+                <th className="px-4 py-4 text-left font-bold text-sm hidden md:table-cell md:px-6">Category</th>
+                <th className="px-4 py-4 text-left font-bold text-sm md:px-6">Date</th>
+                <th className="px-4 py-4 text-left font-bold text-sm md:px-6 hidden lg:table-cell">Priority</th>
+                <th className="px-4 py-4 text-left font-bold text-sm md:px-6 hidden xl:table-cell">Tags</th>
+                <th className="px-4 py-4 text-left font-bold text-sm md:px-6">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -255,10 +255,10 @@ export default function NotesReportTable({
                   className="border-b border-slate-100 hover:bg-slate-50 transition-all cursor-pointer even:bg-slate-50/50 group"
                   onClick={() => onSelectNote(selectedNote?.id === note.id ? null : note)}
                 >
-                  <td className="px-6 py-4 font-semibold text-slate-900 group-hover:text-slate-700 max-w-xs truncate">
+<td className="px-4 py-4 font-semibold text-slate-900 group-hover:text-slate-700 max-w-[200px] md:max-w-xs truncate md:px-6">
                     {note.title}
                   </td>
-                  <td className="px-6 py-4 hidden md:table-cell text-sm text-slate-600">
+                  <td className="px-4 py-4 hidden md:table-cell text-sm text-slate-600 md:px-6">
                     {categories.find(c => c.id === note.category_id)?.name || 'General'}
                   </td>
                   <td className="px-6 py-4 text-sm text-slate-600">

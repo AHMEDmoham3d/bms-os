@@ -246,7 +246,7 @@ function App() {
 
   return (
     <Router>
-      <div className="min-h-screen bg-slate-50 relative">
+      <div className="min-h-screen bg-slate-50 relative overflow-auto">
         <Header />
         <Routes>
           <Route path="/" element={<Home />} />
