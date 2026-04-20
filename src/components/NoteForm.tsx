@@ -1,8 +1,10 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { PenTool, ToggleRight, Trash2, Download } from 'lucide-react';
+import { PenTool, ToggleRight, Trash2, Download, Mic, MicOff } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import type { Category, Note } from '../lib/types';
 import { X, Image as ImageIcon, Video, Loader2, BoldIcon, ItalicIcon, List, Link2 as Link, Code, Quote, Strikethrough, Underline, Undo, Redo, Eye, Type, SeparatorHorizontal, AlignLeft, AlignCenter, AlignRight, Indent, Outdent } from 'lucide-react';
+import { useSpeechRecognition } from '../hooks/useSpeechRecognition';
+
 
 interface NoteFormProps {
   selectedCategory: Category;
@@ -31,6 +33,8 @@ export default function NoteForm({ selectedCategory, onNoteAdded, editingNote, o
   const [drawingColor, setDrawingColor] = useState('#3b82f6');
   const [lineWidth, setLineWidth] = useState(3);
   const contentRef = useRef<HTMLDivElement>(null);
+
+  const speech = useSpeechRecognition('ar-SA');
 
   // Load data
   useEffect(() => {
@@ -427,6 +431,23 @@ export default function NoteForm({ selectedCategory, onNoteAdded, editingNote, o
                 <PenTool className="w-4 h-4" />
               </button>
 
+              {speech.isSupported && (
+                <button 
+                  type="button"
+                  onClick={speech.isListening ? speech.stopListening : speech.startListening}
+                  className={`p-3 rounded-xl transition-all flex items-center gap-1 ml-1 ${
+                    speech.isListening 
+                      ? 'bg-red-100 hover:bg-red-200 text-red-700 animate-pulse border border-red-300' 
+                      : 'hover:bg-blue-200 text-slate-700 hover:text-slate-900 border border-slate-200'
+                  }`}
+                  title={speech.isListening ? "إيقاف التسجيل الصوتي" : "ابدأ الكتابة بالصوت (اللغة العربية)"}
+                  disabled={!speech.isSupported || !!speech.error}
+                >
+                  {speech.isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
+                  {speech.isListening && <span className="text-xs font-bold">...</span>}
+                </button>
+              )}
+
               <div className="flex items-center gap-2 p-3 bg-white rounded-xl border ml-auto">
                 <Eye className="w-4 h-4 cursor-pointer hover:scale-110 transition-transform" onClick={togglePreview} />
               </div> 
@@ -437,6 +458,12 @@ export default function NoteForm({ selectedCategory, onNoteAdded, editingNote, o
                 ref={contentRef}
                 contentEditable
                 onInput={updateContent}
+                onFocus={() => {
+                  if (speech.transcript.trim()) {
+                    speech.insertText(speech.transcript.trim() + ' ', contentRef);
+                    speech.clearTranscript();
+                  }
+                }}
                 className="w-full min-h-40 sm:min-h-[250px] p-6 border-2 border-dashed border-slate-200 rounded-3xl focus:border-blue-500 focus:ring-4 ring-blue-200/50 bg-gradient-to-br from-slate-50 to-white text-base leading-7 font-[Cairo] direction-rtl prose prose-slate prose-headings:font-black prose-headings:text-slate-900 prose-a:text-blue-600 prose-a:no-underline hover:prose-a:underline prose-strong:font-bold prose-em:italic prose-li:leading-relaxed prose-blockquote:border-r-4 prose-blockquote:border-blue-400 prose-blockquote:pr-4 prose-pre:bg-slate-900 prose-code:bg-slate-100 [&_ul]:list-disc [&_ol]:list-decimal pl-8 [&_hr]:border-slate-300 [&_hr]:my-8 [&_div[style*='text-align:'][style*='left']]:text-left [&_div[style*='text-align:'][style*='center']]:text-center [&_div[style*='text-align:'][style*='right']]:text-right outline-none resize-none shadow-inner hover:shadow-md transition-all" 
                 suppressContentEditableWarning={true}
                 dir="auto"

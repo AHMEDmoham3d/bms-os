@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
-import { X, Clock, Bold, Type } from 'lucide-react';
+import { X, Clock, Bold, Type, Mic, MicOff } from 'lucide-react';
 import type { Note, Category } from '../lib/types';
+import { useSpeechRecognition } from '../hooks/useSpeechRecognition';
 
 interface NoteModalProps {
   isOpen: boolean;
@@ -15,6 +16,7 @@ export default function NoteModal({ isOpen, onClose, note, onUpdateNote, categor
   const [content, setContent] = useState('');
   const [category, setCategory] = useState('');
   const editableRef = useRef<HTMLDivElement>(null);
+  const speech = useSpeechRecognition('ar-SA');
 
   useEffect(() => {
     if (note) {
@@ -84,6 +86,21 @@ export default function NoteModal({ isOpen, onClose, note, onUpdateNote, categor
             >
               {isPreview ? <Bold className="w-5 h-5" /> : <Type className="w-5 h-5" />}
             </button>
+            {speech.isSupported && !isPreview && (
+              <button 
+                type="button"
+                onClick={speech.isListening ? speech.stopListening : speech.startListening}
+                className={`p-2 rounded-lg transition-all flex items-center ${
+                  speech.isListening 
+                    ? 'bg-red-100 hover:bg-red-200 text-red-700 animate-pulse border border-red-300' 
+                    : 'hover:bg-slate-100 text-slate-700 hover:text-slate-900 border border-slate-200'
+                }`}
+                title={speech.isListening ? "إيقاف التسجيل الصوتي" : "ابدأ الكتابة بالصوت"}
+                disabled={!speech.isSupported || !!speech.error}
+              >
+                {speech.isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
+              </button>
+            )}
             <button
               onClick={onClose}
               className="p-2 hover:bg-slate-100 rounded-xl transition-all"
@@ -112,6 +129,12 @@ export default function NoteModal({ isOpen, onClose, note, onUpdateNote, categor
                 className="prose prose-slate max-w-none leading-relaxed min-h-[400px] outline-none focus:outline-none p-6 border-2 border-dashed border-slate-200 rounded-3xl bg-gradient-to-br from-slate-50 to-white shadow-inner focus:border-blue-500 focus:ring-4 ring-blue-200/50"
                 dir="auto"
                 onInput={(e) => setContent(e.currentTarget.innerHTML)}
+                onFocus={() => {
+                  if (speech.transcript.trim()) {
+                    speech.insertText(speech.transcript.trim() + ' ', editableRef);
+                    speech.clearTranscript();
+                  }
+                }}
                 dangerouslySetInnerHTML={{ __html: content }}
               />
             </div>

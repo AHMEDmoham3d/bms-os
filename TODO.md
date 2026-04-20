@@ -1,20 +1,9 @@
-# Fix Login Refresh Issue - Progress Tracker
+# Speech-to-Text Feature Progress
 
-## Current Task: Fix login persistence on page refresh across all routes
-
-### Steps from Approved Plan:
-- [x] 1. Update src/lib/auth.ts (unify credentials to username/password)
-- [x] 2. Fix src/context/AuthContext.tsx (restore from localStorage, remove hardcoded)
-
-- [x] 3. Update src/App.tsx (use useAuth() instead of sessionStorage)
-
-- [x] 4. Update src/components/LoginPage.tsx (use auth.login(), remove sessionStorage)
-- [x] 5. Test refresh on all pages: /, /notes, /team, /products, /sectors
-- [x] 6. Update TODO-Fix-Login-Refresh.md (mark complete)
-
-**Status:** ✅ COMPLETE - All changes implemented and TODOs updated.
-
-
-
-
-
+## Steps:
+- [x] 1. Create `src/hooks/useSpeechRecognition.ts` hook
+- [x] 2. Edit `src/components/NoteForm.tsx` - add toolbar button + hook integration
+- [x] 3. Test speech insertion in dev mode (server running)
+- [x] 4. Edit `src/components/NoteModal.tsx` similarly
+- [x] 5. Final testing & cleanup
+- [x] 6. Complete task
