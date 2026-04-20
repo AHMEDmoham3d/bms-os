@@ -83,7 +83,7 @@ export function useNotesData() {
         notesByCategory[cat.id] = catNotes;
         categoryStats[cat.id] = {
           count: catNotes.length,
-          latest: catNotes.length > 0 ? new Date(catNotes[0].created_at).toLocaleDateString('ar-EG') : 'لا ملاحظات'
+          latest: catNotes.length > 0 ? new Date(catNotes[0].created_at).toLocaleDateString('en-US') : 'No notes'
         };
       });
 

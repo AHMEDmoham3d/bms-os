@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import { Home, LayoutDashboard, Folder, Users, BarChart3 } from 'lucide-react';
+import { Home, LayoutDashboard, Folder, Users, BarChart3, Layers } from 'lucide-react';
 
 function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -8,6 +8,7 @@ function Header() {
   const navItems = [
     { to: '/', label: 'Home', icon: Home },
     { to: '/notes', label: 'Notes', icon: LayoutDashboard },
+    { to: '/workspaces', label: 'Workspaces', icon: Layers },
     { to: '/sectors', label: 'Sectors', icon: LayoutDashboard },
     { to: '/products', label: 'Products', icon: Folder },
     { to: '/team', label: 'Team', icon: Users },

@@ -87,6 +87,12 @@ export interface User {
   role?: string;
 }
 
+export interface Workspace {
+  id: number;
+  name: string;
+  default: boolean;
+}
+
 export interface AuthUser {
   id: string;
   username?: string;

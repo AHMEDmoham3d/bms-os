@@ -363,13 +363,13 @@ export default function NoteForm({ selectedCategory, onNoteAdded, editingNote, o
 
           <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-2xl border border-blue-200">
             <div className="flex flex-wrap gap-1 sm:gap-2 mb-4">
-              <button type="button" onClick={() => execCommand('formatBlock', 'h1')} className="p-2 sm:p-3 hover:bg-blue-200 rounded-xl transition-all flex items-center gap-1" title="عنوان رئيسي (H1)">
+              <button type="button" onClick={() => execCommand('formatBlock', 'h1')} className="p-2 sm:p-3 hover:bg-blue-200 rounded-xl transition-all flex items-center gap-1" title="Main Heading (H1)">
                 <Type className="w-4 h-4" /> H1
               </button>
-              <button type="button" onClick={() => execCommand('formatBlock', 'h2')} className="p-3 hover:bg-blue-200 rounded-xl transition-all flex items-center gap-1" title="عنوان جانبي (H2)">
+              <button type="button" onClick={() => execCommand('formatBlock', 'h2')} className="p-3 hover:bg-blue-200 rounded-xl transition-all flex items-center gap-1" title="Secondary Heading (H2)">
                 <Type className="w-4 h-4 scale-75" /> H2
               </button>
-              <button type="button" onClick={() => execCommand('insertHorizontalRule')} className="p-3 hover:bg-blue-200 rounded-xl transition-all" title="خط جديد / فاصل">
+              <button type="button" onClick={() => execCommand('insertHorizontalRule')} className="p-3 hover:bg-blue-200 rounded-xl transition-all" title="New Line / Separator">
                 <SeparatorHorizontal className="w-4 h-4" />
               </button>
               <button type="button" onClick={handleBold} className="p-3 hover:bg-blue-200 rounded-xl transition-all flex items-center gap-1">
@@ -400,19 +400,19 @@ export default function NoteForm({ selectedCategory, onNoteAdded, editingNote, o
                 <Quote className="w-4 h-4" />
               </button>
               <div className="w-px h-8 bg-blue-200 mx-1 hidden sm:block" />
-              <button type="button" onClick={handleJustifyLeft} className="p-3 hover:bg-blue-200 rounded-xl" title="محاذاة يسار">
+              <button type="button" onClick={handleJustifyLeft} className="p-3 hover:bg-blue-200 rounded-xl" title="Align Left">
                 <AlignLeft className="w-4 h-4" />
               </button>
-              <button type="button" onClick={handleJustifyCenter} className="p-3 hover:bg-blue-200 rounded-xl" title="محاذاة وسط">
+              <button type="button" onClick={handleJustifyCenter} className="p-3 hover:bg-blue-200 rounded-xl" title="Align Center">
                 <AlignCenter className="w-4 h-4" />
               </button>
-              <button type="button" onClick={handleJustifyRight} className="p-3 hover:bg-blue-200 rounded-xl" title="محاذاة يمين">
+              <button type="button" onClick={handleJustifyRight} className="p-3 hover:bg-blue-200 rounded-xl" title="Align Right">
                 <AlignRight className="w-4 h-4" />
               </button>
-              <button type="button" onClick={handleIndent} className="p-3 hover:bg-blue-200 rounded-xl" title="زيادة المسافة">
+              <button type="button" onClick={handleIndent} className="p-3 hover:bg-blue-200 rounded-xl" title="Increase Indent">
                 <Indent className="w-4 h-4" />
               </button>
-              <button type="button" onClick={handleOutdent} className="p-3 hover:bg-blue-200 rounded-xl" title="تقليل المسافة">
+              <button type="button" onClick={handleOutdent} className="p-3 hover:bg-blue-200 rounded-xl" title="Decrease Indent">
                 <Outdent className="w-4 h-4" />
               </button>
               <button type="button" onClick={handleUndo} className="p-3 hover:bg-blue-200 rounded-xl transition-all">

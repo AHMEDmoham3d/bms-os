@@ -15,6 +15,7 @@ import Products from './components/Products';
 import Team from './components/Team';
 import Projections from './components/Projections';
 import LoginPage from './components/LoginPage';
+import Workspaces from './components/Workspaces';
 import { FolderOpen, FileText } from 'lucide-react';
 
 function Home() {
@@ -255,6 +256,7 @@ function App() {
           <Route path="/products" element={<Products products={products} features={productFeatures} sectors={sectors} projections={financialProjections} />} />
           <Route path="/team" element={<Team teamMembers={teamMembers} sectors={sectors} />} />
           <Route path="/projections" element={<Projections projections={financialProjections} products={products} />} />
+          <Route path="/workspaces" element={<Workspaces />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </div>
