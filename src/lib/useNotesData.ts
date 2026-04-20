@@ -6,6 +6,9 @@ interface NotesData {
   categories: Category[];
   notesByCategory: Record<number, Note[]>;
   allNotes: Note[];
+  categoryStats: Record<number, { count: number; latest: string }>;
+  totalNotes: number;
+  recentNotes: Note[];
   loading: boolean;
   error: string | null;
   refetch: () => void;
@@ -16,9 +19,12 @@ export function useNotesData() {
   const [data, setData] = useState<NotesData>({
     categories: [],
     notesByCategory: {},
+    allNotes: [],
+    categoryStats: {},
+    totalNotes: 0,
+    recentNotes: [],
     loading: true,
     error: null,
-    allNotes: [],
     refetch: () => {},
   });
 
@@ -69,14 +75,25 @@ export function useNotesData() {
 
       // Group notes by category_id
       const notesByCategory: Record<number, Note[]> = {};
+      const categoryStats: Record<number, { count: number; latest: string }> = {};
+      const recentNotes = allNotes.slice(0, 5);
+
       categories.forEach(cat => {
-        notesByCategory[cat.id] = allNotes.filter(note => note.category_id === cat.id);
+        const catNotes = allNotes.filter(note => note.category_id === cat.id);
+        notesByCategory[cat.id] = catNotes;
+        categoryStats[cat.id] = {
+          count: catNotes.length,
+          latest: catNotes.length > 0 ? new Date(catNotes[0].created_at).toLocaleDateString('ar-EG') : 'لا ملاحظات'
+        };
       });
 
       setData({
         categories,
         notesByCategory,
         allNotes,
+        categoryStats,
+        totalNotes: allNotes.length,
+        recentNotes,
         loading: false,
         error: null,
         refetch,
@@ -90,6 +107,9 @@ export function useNotesData() {
         categories: [],
         notesByCategory: {},
         allNotes: [],
+        categoryStats: {},
+        totalNotes: 0,
+        recentNotes: [],
         loading: false,
         error: 'Supabase connection failed. Check console for details.',
         refetch,
