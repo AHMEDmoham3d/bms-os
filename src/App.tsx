@@ -185,8 +185,11 @@ function NotesPage() {
                   selectedNote={selectedNote}
                   onSelectNote={setSelectedNote}
                   onDeleteNote={handleDeleteNote} 
-                  onNoteAdded={handleNoteAdded} 
+                  onNoteAdded={handleNoteAdded}
+                  categoryStats={notesData.categoryStats}
+                  recentNotes={notesData.recentNotes}
                 />
+
               </section>
             )}
 
