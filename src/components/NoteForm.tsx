@@ -27,6 +27,7 @@ export default function NoteForm({ selectedCategory, onNoteAdded, editingNote, o
   });
   const [submitting, setSubmitting] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
+  const [wordCount, setWordCount] = useState(0);
   // Drawing states
   const [showDrawingPanel, setShowDrawingPanel] = useState(false);
   const [penMode, setPenMode] = useState(false);
@@ -62,6 +63,9 @@ export default function NoteForm({ selectedCategory, onNoteAdded, editingNote, o
     if (contentRef.current) {
       const htmlContent = contentRef.current.innerHTML || '';
       setFormData(prev => ({ ...prev, content: htmlContent }));
+      const text = htmlContent.replace(/<[^>]*>/g, ' ').replace(/&nbsp;/g, ' ');
+      const words = text.trim().split(/\s+/).filter(Boolean).length;
+      setWordCount(words);
     }
   }, []);
 
@@ -444,17 +448,22 @@ export default function NoteForm({ selectedCategory, onNoteAdded, editingNote, o
 
               <div className="flex items-center gap-2 p-3 bg-white rounded-xl border ml-auto">
                 <Eye className="w-4 h-4 cursor-pointer hover:scale-110 transition-transform" onClick={togglePreview} />
+                <button type="button" className="p-1.5 hover:bg-slate-100 rounded transition-all" title="Slash Commands (/)">/</button>
+                <button type="button" className="p-1.5 hover:bg-slate-100 rounded transition-all" title="Emoji">😀</button>
+                <span className="text-xs text-slate-500 ml-auto">{wordCount} كلمة</span>
               </div> 
             </div>
 
-            <div className={!showPreview ? 'flex flex-col' : 'hidden'}>
+            <div className={!showPreview ? 'flex flex-col relative' : 'hidden'}>
                 <div
                 ref={contentRef}
                 contentEditable
                 onInput={updateContent}
-                className="w-full min-h-40 sm:min-h-[250px] p-6 border-2 border-dashed border-slate-200 rounded-3xl focus:border-blue-500 focus:ring-4 ring-blue-200/50 bg-gradient-to-br from-slate-50 to-white text-base leading-7 font-[Cairo] direction-rtl prose prose-slate prose-headings:font-black prose-headings:text-slate-900 prose-a:text-blue-600 prose-a:no-underline hover:prose-a:underline prose-strong:font-bold prose-em:italic prose-li:leading-relaxed prose-blockquote:border-r-4 prose-blockquote:border-blue-400 prose-blockquote:pr-4 prose-pre:bg-slate-900 prose-code:bg-slate-100 [&_ul]:list-disc [&_ol]:list-decimal pl-8 [&_hr]:border-slate-300 [&_hr]:my-8 [&_div[style*='text-align:'][style*='left']]:text-left [&_div[style*='text-align:'][style*='center']]:text-center [&_div[style*='text-align:'][style*='right']]:text-right outline-none resize-none shadow-inner hover:shadow-md transition-all" 
+                className="w-full min-h-40 sm:min-h-[250px] p-6 border-2 border-dashed border-slate-200/70 rounded-3xl focus:border-blue-500 focus:ring-4 ring-blue-200/50 focus:ring-offset-2 focus:shadow-2xl bg-gradient-to-br from-slate-50 to-white text-base leading-7 font-[Cairo] direction-rtl prose prose-slate prose-headings:font-black prose-headings:text-slate-900 prose-a:text-blue-600 prose-a:no-underline hover:prose-a:underline prose-strong:font-bold prose-em:italic prose-li:leading-relaxed prose-blockquote:border-r-4 prose-blockquote:border-blue-400 prose-blockquote:pr-4 prose-pre:bg-slate-900 prose-code:bg-slate-100 [&_ul]:list-disc [&_ol]:list-decimal pl-8 [&_hr]:border-slate-300 [&_hr]:my-8 [&_div[style*='text-align:'][style*='left']]:text-left [&_div[style*='text-align:'][style*='center']]:text-center [&_div[style*='text-align:'][style*='right']]:text-right outline-none resize hover:resize hover:cursor-se-resize shadow-inner hover:shadow-xl transition-all spellcheck before:content-['ابدأ_الكتابة_هنا...'] before:text-slate-400 before:absolute before:inset-0 before:flex before:items-center before:justify-center before:p-12 before:pointer-events-none data-[empty=true]:before:block" 
+                spellCheck={true}
                 suppressContentEditableWarning={true}
                 dir="auto"
+                data-empty={contentRef.current && contentRef.current.innerHTML.trim() === ''}
               />
               {showDrawingPanel && (
                 <div className="mt-4 p-4 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-2xl border-2 border-indigo-200">

@@ -109,10 +109,12 @@ export default function NoteModal({ isOpen, onClose, note, onUpdateNote, categor
                 contentEditable 
                 ref={editableRef} 
                 suppressContentEditableWarning={true}
-                className="prose prose-slate max-w-none leading-relaxed min-h-[400px] outline-none focus:outline-none p-6 border-2 border-dashed border-slate-200 rounded-3xl bg-gradient-to-br from-slate-50 to-white shadow-inner focus:border-blue-500 focus:ring-4 ring-blue-200/50"
+                className="prose prose-slate max-w-none leading-relaxed min-h-[400px] outline-none focus:outline-none p-6 border-2 border-dashed border-slate-200/70 rounded-3xl bg-gradient-to-br from-slate-50 to-white shadow-inner hover:shadow-xl focus:border-blue-500 focus:ring-4 ring-blue-200/50 focus:shadow-2xl focus:ring-offset-2 resize spellcheck before:content-['ابدأ_الكتابة_هنا...'] before:text-slate-400 before:absolute before:inset-0 before:flex before:items-center before:justify-center before:p-12 before:pointer-events-none data-[empty=true]:before:block"
                 dir="auto"
+                spellCheck={true}
                 onInput={(e) => setContent(e.currentTarget.innerHTML)}
                 dangerouslySetInnerHTML={{ __html: content }}
+                data-empty={editableRef.current && editableRef.current.innerHTML.trim() === ''}
               />
             </div>
           )}
