@@ -185,7 +185,7 @@ export default function NotesReportTable({
         </div>
       </div>
 
-      {/* Charts Section - Simple SVG */}
+      {/* Charts Section */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <motion.div 
           initial={{ opacity: 0, scale: 0.95 }}
@@ -253,7 +253,7 @@ export default function NotesReportTable({
                   className="border-b border-slate-100 hover:bg-slate-50 transition-all cursor-pointer even:bg-slate-50/50 group"
                   onClick={() => onSelectNote(selectedNote?.id === note.id ? null : note)}
                 >
-<td className="px-4 py-4 font-semibold text-slate-900 group-hover:text-slate-700 max-w-[200px] md:max-w-xs truncate md:px-6">
+                  <td className="px-4 py-4 font-semibold text-slate-900 group-hover:text-slate-700 max-w-[200px] md:max-w-xs truncate md:px-6">
                     {note.title}
                   </td>
                   <td className="px-4 py-4 hidden md:table-cell text-sm text-slate-600 md:px-6">
@@ -347,4 +347,3 @@ export default function NotesReportTable({
     </div>
   );
 }
-
