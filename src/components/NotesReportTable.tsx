@@ -4,6 +4,7 @@ import { Search, Filter, ChevronDown, ChevronUp, Calendar, Clock, Plus, Download
 import NoteActions from './NoteActions';
 import NoteForm from './NoteForm';
 import { motion, AnimatePresence } from 'framer-motion';
+import PieChart from './PieChart';
 
 interface NotesReportTableProps {
   notes: Note[];
@@ -194,10 +195,7 @@ export default function NotesReportTable({
           <h3 className="text-xl font-bold text-slate-900 mb-6 flex items-center gap-3">
             Category Distribution
           </h3>
-          <div className="h-64 flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl">
-            <span className="text-6xl font-black text-slate-300">📊</span>
-            <p className="text-sm text-slate-500 mt-4 text-center">Pie chart coming soon</p>
-          </div>
+          <PieChart />
         </motion.div>
         <motion.div 
           initial={{ opacity: 0, scale: 0.95 }}
