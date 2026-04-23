@@ -54,7 +54,7 @@ export function useNotesData() {
       
       let query = supabase
         .from('notes')
-        .select('id, title, content, category_id, workspace_id, image, video_url, created_at, tags, priority, pinned, template')
+        .select('id, title, content, category_id, workspace_id, image, video_url, created_at, priority, pinned, template')
         .order('created_at', { ascending: false });
 
 
