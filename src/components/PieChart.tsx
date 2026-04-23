@@ -1,129 +1,145 @@
 import { motion } from 'framer-motion';
+import type { Note, Category } from '../lib/types';
 
-export default function PieChart() {
-  return (
-    <motion.div 
-      initial={{ opacity: 0, rotate: 0 }}
-      animate={{ opacity: 1, rotate: 360 }}
-      transition={{ duration: 2, ease: "easeInOut" }}
-      className="h-64 flex items-center justify-center"
-    >
-      <svg viewBox="0 0 300 300" className="w-full h-full mx-auto drop-shadow-2xl">
-        <defs>
-          <radialGradient id="pieGradient" cx="50%" cy="50%">
-            <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.9">
-              <animate attributeName="stop-color" values="#3b82f6;#10b981;#f59e0b;#ef4444;#8b5cf6;#06b6d4;#3b82f6" dur="10s" repeatCount="indefinite"/>
-            </stop>
-            <stop offset="100%" stopColor="#3b82f6" stopOpacity="0.2">
-              <animate attributeName="stop-color" values="#10b981;#f59e0b;#ef4444;#8b5cf6;#06b6d4;#3b82f6;#10b981" dur="10s" repeatCount="indefinite"/>
-            </stop>
-          </radialGradient>
-          <linearGradient id="shine" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="white" stopOpacity="0.4"/>
-            <stop offset="100%" stopColor="transparent"/>
-          </linearGradient>
-        </defs>
-        {/* Main pie */}
-        <circle 
-          cx="150" 
-          cy="150" 
-          r="130" 
-          fill="url(#pieGradient)" 
-          stroke="rgba(255,255,255,0.9)" 
-          strokeWidth="10"
-          filter="url(#glow)"
-        >
-          <animateTransform 
-            attributeName="transform" 
-            type="rotate" 
-            from="0 150 150" 
-            to="360 150 150" 
-            dur="25s" 
-            repeatCount="indefinite"
-          />
-          <animate attributeName="opacity" values="0.8;1;0.8" dur="5s" repeatCount="indefinite"/>
-        </circle>
-        {/* Inner ring */}
-        <circle 
-          cx="150" 
-          cy="150" 
-          r="110" 
-          fill="url(#shine)" 
-          stroke="#f1f5f9" 
-          strokeWidth="8"
-        >
-          <animateTransform 
-            attributeName="transform" 
-            type="rotate" 
-            from="360 150 150" 
-            to="0 150 150" 
-            dur="18s" 
-            repeatCount="indefinite"
-          />
-        </circle>
-        {/* 3D effect rings */}
-        <circle cx="150" cy="150" r="135" fill="none" stroke="#ffffff" strokeWidth="3" opacity="0.6"/>
-        <circle cx="150" cy="150" r="105" fill="none" stroke="#e2e8f0" strokeWidth="4"/>
-        {/* Pulsing center */}
-        <circle cx="150" cy="150" r="45" fill="url(#pieGradient)" opacity="0.4">
-          <animate attributeName="r" values="40;55;40" dur="4s" repeatCount="indefinite"/>
-          <animate attributeName="opacity" values="0.3;0.5;0.3" dur="4s" repeatCount="indefinite"/>
-        </circle>
-        {/* Glowing data arcs */}
-        <path d="M 150 20 A 130 130 0 1 1 150 280 A 130 130 0 1 1 150 20 Z" fill="none" stroke="#3b82f6" strokeWidth="25" strokeLinecap="round" opacity="0.3">
-          <animate attributeName="stroke-dasharray" values="0 816;816 0" dur="6s" repeatCount="indefinite"/>
-        </path>
-        {/* Data points - animated blobs */}
-        {[
-          {cx: 90, cy: 90, r: 18, color: '#3b82f6'},
-          {cx: 240, cy: 110, r: 22, color: '#10b981'},
-          {cx: 130, cy: 240, r: 20, color: '#f59e0b'},
-          {cx: 210, cy: 70, r: 16, color: '#ef4444'},
-          {cx: 70, cy: 180, r: 19, color: '#8b5cf6'}
-        ].map((point, i) => (
-          <circle 
-            key={i}
-            cx={point.cx} 
-            cy={point.cy} 
-            r={point.r}
-            fill={point.color}
-            opacity="0.8"
-          >
-            <animate attributeName="opacity" values="0.6;1;0.6" dur={`${2 + i*0.5}s`} repeatCount="indefinite"/>
-            <animateTransform attributeName="transform" type="scale" values="1;1.15;1" dur={`${2 + i*0.5}s`} repeatCount="indefinite"/>
-            <animate attributeName="r" values={`${point.r};${point.r + 4};${point.r}`} dur={`${2 + i*0.5}s`} repeatCount="indefinite"/>
-          </circle>
-        ))}
-        {/* Sparkles */}
-        <g opacity="0.7">
-          <circle cx="160" cy="140" r="5" fill="#fbbf24">
-            <animate attributeName="opacity" values="0;1;0" dur="1.8s" repeatCount="indefinite"/>
-            <animate attributeName="r" values="2;7;2" dur="1.8s" repeatCount="indefinite"/>
-          </circle>
-          <circle cx="110" cy="130" r="4" fill="#60a5fa">
-            <animate attributeName="opacity" values="1;0;1" dur="2.3s" repeatCount="indefinite" begin="0.8s"/>
-            <animate attributeName="r" values="2;5;2" dur="2.3s" repeatCount="indefinite" begin="0.8s"/>
-          </circle>
-          <circle cx="190" cy="170" r="3" fill="#f59e0b">
-            <animate attributeName="opacity" values="0;1;0" dur="1.5s" repeatCount="indefinite" begin="1.2s"/>
-            <animate attributeName="r" values="1.5;4.5;1.5" dur="1.5s" repeatCount="indefinite" begin="1.2s"/>
-          </circle>
-        </g>
-        {/* Legend */}
-        <g opacity="0.9">
-          <rect x="10" y="10" width="280" height="70" rx="16" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.3)" strokeWidth="2"/>
-          <text x="25" y="35" fontSize="16" fontWeight="bold" fill="#1e293b" textAnchor="start">Category Distribution</text>
-          <g transform="translate(25,55)">
-            <circle cx="0" cy="0" r="8" fill="#3b82f6"/>
-            <text x="20" y="5" fontSize="13" fill="#475569">Notes</text>
-            <circle cx="90" cy="0" r="8" fill="#10b981"/>
-            <text x="110" y="5" fontSize="13" fill="#475569">Tasks</text>
-            <circle cx="180" cy="0" r="8" fill="#f59e0b"/>
-            <text x="200" y="5" fontSize="13" fill="#475569">Projects</text>
-          </g>
-        </g>
-      </svg>
-    </motion.div>
-  );
+interface PieChartProps {
+  notes: Note[];
+  categories: Category[];
 }
 
+const PALETTE = [
+  '#3b82f6',
+  '#10b981',
+  '#f59e0b',
+  '#ef4444',
+  '#8b5cf6',
+  '#06b6d4',
+  '#f97316',
+  '#ec4899',
+];
+
+function polar(cx: number, cy: number, r: number, angleDeg: number) {
+  const rad = (angleDeg - 90) * Math.PI / 180.0;
+  return {
+    x: cx + r * Math.cos(rad),
+    y: cy + r * Math.sin(rad),
+  };
+}
+
+function donutSegment(
+  cx: number,
+  cy: number,
+  rOut: number,
+  rIn: number,
+  start: number,
+  end: number
+) {
+  const p1 = polar(cx, cy, rOut, start);
+  const p2 = polar(cx, cy, rOut, end);
+  const p3 = polar(cx, cy, rIn, end);
+  const p4 = polar(cx, cy, rIn, start);
+  const largeArc = end - start <= 180 ? 0 : 1;
+  return [
+    `M ${p1.x} ${p1.y}`,
+    `A ${rOut} ${rOut} 0 ${largeArc} 1 ${p2.x} ${p2.y}`,
+    `L ${p3.x} ${p3.y}`,
+    `A ${rIn} ${rIn} 0 ${largeArc} 0 ${p4.x} ${p4.y}`,
+    'Z',
+  ].join(' ');
+}
+
+export default function PieChart({ notes, categories }: PieChartProps) {
+  const data = categories
+    .map((cat, i) => ({
+      ...cat,
+      count: notes.filter((n) => n.category_id === cat.id).length,
+      color: PALETTE[i % PALETTE.length],
+    }))
+    .filter((d) => d.count > 0)
+    .sort((a, b) => b.count - a.count);
+
+  const total = data.reduce((sum, d) => sum + d.count, 0);
+
+  let currentAngle = 0;
+  const slices = data.map((d) => {
+    const sliceAngle = total === 0 ? 0 : (d.count / total) * 360;
+    const start = currentAngle;
+    const end = currentAngle + sliceAngle;
+    currentAngle = end;
+    return {
+      ...d,
+      start,
+      end,
+      pct: total === 0 ? 0 : Math.round((d.count / total) * 100),
+    };
+  });
+
+  const cx = 150;
+  const cy = 150;
+  const rOut = 110;
+  const rIn = 65;
+
+  if (total === 0) {
+    return (
+      <div className="h-64 flex flex-col items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl">
+        <span className="text-6xl font-black text-slate-300">📊</span>
+        <p className="text-sm text-slate-500 mt-4 text-center">No data yet</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col items-center">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.6 }}
+        className="relative h-64 w-full flex items-center justify-center"
+      >
+        <svg viewBox="0 0 300 300" className="w-full h-full mx-auto drop-shadow-2xl">
+          {slices.map((slice) => (
+            <path
+              key={slice.id}
+              d={donutSegment(cx, cy, rOut, rIn, slice.start, slice.end)}
+              fill={slice.color}
+              stroke="white"
+              strokeWidth={3}
+            >
+              <title>
+                {slice.name}: {slice.count} ({slice.pct}%)
+              </title>
+            </path>
+          ))}
+          {/* subtle inner ring */}
+          <circle cx={cx} cy={cy} r={rIn - 4} fill="white" />
+        </svg>
+
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <div className="flex flex-col items-center">
+            <span className="text-3xl font-black text-slate-800 leading-none">{total}</span>
+            <span className="text-xs text-slate-500 font-medium mt-1">Notes</span>
+          </div>
+        </div>
+      </motion.div>
+
+      <div className="mt-4 flex flex-wrap gap-3 justify-center w-full">
+        {slices.map((slice) => (
+          <div
+            key={slice.id}
+            className="flex items-center gap-2 bg-slate-50 px-3 py-1.5 rounded-full border border-slate-100"
+          >
+            <span
+              className="w-3 h-3 rounded-full"
+              style={{ backgroundColor: slice.color }}
+            />
+            <span className="text-xs font-semibold text-slate-700">
+              {slice.name}
+            </span>
+            <span className="text-xs text-slate-500">
+              {slice.count} ({slice.pct}%)
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}

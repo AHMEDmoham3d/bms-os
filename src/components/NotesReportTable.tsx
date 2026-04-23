@@ -195,7 +195,7 @@ export default function NotesReportTable({
           <h3 className="text-xl font-bold text-slate-900 mb-6 flex items-center gap-3">
             Category Distribution
           </h3>
-          <PieChart />
+          <PieChart notes={notes} categories={categories} />
         </motion.div>
         <motion.div 
           initial={{ opacity: 0, scale: 0.95 }}
