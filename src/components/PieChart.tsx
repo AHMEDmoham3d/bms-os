@@ -80,10 +80,55 @@ export default function PieChart({ notes, categories }: PieChartProps) {
 
   if (total === 0) {
     return (
-      <div className="h-64 flex flex-col items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl">
-        <span className="text-6xl font-black text-slate-300">📊</span>
-        <p className="text-sm text-slate-500 mt-4 text-center">No data yet</p>
-      </div>
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5 }}
+        className="h-64 flex flex-col items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl"
+      >
+        <div className="relative w-28 h-28 mb-4">
+          <svg viewBox="0 0 120 120" className="w-full h-full drop-shadow-sm">
+            <circle
+              cx="60"
+              cy="60"
+              r="44"
+              fill="none"
+              stroke="#e2e8f0"
+              strokeWidth="12"
+            />
+            <motion.circle
+              cx="60"
+              cy="60"
+              r="44"
+              fill="none"
+              stroke="#cbd5e1"
+              strokeWidth="12"
+              strokeLinecap="round"
+              strokeDasharray="276"
+              strokeDashoffset="276"
+              initial={{ strokeDashoffset: 276 }}
+              animate={{ strokeDashoffset: 180 }}
+              transition={{ duration: 1.2, ease: "easeInOut" }}
+              transform="rotate(-90 60 60)"
+            />
+            <circle
+              cx="60"
+              cy="60"
+              r="28"
+              fill="white"
+            />
+          </svg>
+          <div className="absolute inset-0 flex items-center justify-center">
+            <span className="text-2xl font-black text-slate-300">0</span>
+          </div>
+        </div>
+        <p className="text-sm font-semibold text-slate-700 text-center px-4">
+          Start adding notes to see your category distribution
+        </p>
+        <p className="text-xs text-slate-400 mt-1 text-center px-4">
+          Your notes will be grouped by category here
+        </p>
+      </motion.div>
     );
   }
 
