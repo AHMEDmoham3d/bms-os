@@ -139,19 +139,15 @@ export default function PieChart({ notes, categories, onCategorySelect }: PieCha
               strokeDashoffset="276"
               initial={{ strokeDashoffset: 276 }}
               animate={{ strokeDashoffset: 180 }}
-              transition={{ duration: 1.2, ease: "easeInOut" }}
+              transition={{ duration: 1.2, ease: 'easeInOut' }}
               transform="rotate(-90 60 60)"
             />
-            <circle
-              cx="60"
-              cy="60"
-              r="28"
-              fill="white"
-            />
+            <circle cx="60" cy="60" r="28" fill="white" />
           </svg>
           <div className="absolute inset-0 flex items-center justify-center">
             <span className="text-2xl font-black text-slate-300">0</span>
           </div>
+        </div>
         <p className="text-sm font-semibold text-slate-700 text-center px-4">
           Start adding notes to see your category distribution
         </p>
@@ -240,6 +236,7 @@ export default function PieChart({ notes, categories, onCategorySelect }: PieCha
             </motion.span>
             <span className="text-xs text-slate-500 font-medium mt-1">Notes</span>
           </div>
+        </div>
 
         {/* Custom Tooltip */}
         <AnimatePresence>
@@ -295,5 +292,6 @@ export default function PieChart({ notes, categories, onCategorySelect }: PieCha
           </motion.div>
         ))}
       </div>
+    </div>
   );
 }
