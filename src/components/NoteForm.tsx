@@ -204,16 +204,12 @@ export default function NoteForm({ selectedCategory, onNoteAdded, editingNote, o
       const currentWsIdStr = localStorage.getItem('current_workspace_id');
       const currentWsId = currentWsIdStr ? parseInt(currentWsIdStr) : null;
       
-      // Full payload
+      // Full payload (only columns that exist in DB)
       const payload = {
         title: formData.title.slice(0, 100),
         content: formData.content.slice(0, 10000),
         image: formData.image || null,
         video_url: formData.video_url || null,
-        tags: formData.tags,
-        priority: formData.priority,
-        pinned: formData.pinned,
-        template: formData.template || null,
         workspace_id: currentWsId || formData.workspace_id || null,
         category_id: selectedCategory.id,
       };

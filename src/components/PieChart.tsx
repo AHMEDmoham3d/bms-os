@@ -1,5 +1,6 @@
-import { useState, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useState } from 'react';
+import { motion } from 'framer-motion';
+import { FileText, Layers, Calendar, BarChart3 } from 'lucide-react';
 import type { Note, Category } from '../lib/types';
 
 interface PieChartProps {
@@ -9,51 +10,18 @@ interface PieChartProps {
 }
 
 const PALETTE = [
-  '#3b82f6',
-  '#10b981',
-  '#f59e0b',
-  '#ef4444',
-  '#8b5cf6',
-  '#06b6d4',
-  '#f97316',
-  '#ec4899',
+  'bg-blue-500',
+  'bg-emerald-500',
+  'bg-amber-500',
+  'bg-rose-500',
+  'bg-violet-500',
+  'bg-cyan-500',
+  'bg-orange-500',
+  'bg-pink-500',
 ];
 
-function polar(cx: number, cy: number, r: number, angleDeg: number) {
-  const rad = ((angleDeg - 90) * Math.PI) / 180.0;
-  return {
-    x: cx + r * Math.cos(rad),
-    y: cy + r * Math.sin(rad),
-  };
-}
-
-function donutSegment(
-  cx: number,
-  cy: number,
-  rOut: number,
-  rIn: number,
-  start: number,
-  end: number
-) {
-  const p1 = polar(cx, cy, rOut, start);
-  const p2 = polar(cx, cy, rOut, end);
-  const p3 = polar(cx, cy, rIn, end);
-  const p4 = polar(cx, cy, rIn, start);
-  const largeArc = end - start <= 180 ? 0 : 1;
-  return [
-    `M ${p1.x} ${p1.y}`,
-    `A ${rOut} ${rOut} 0 ${largeArc} 1 ${p2.x} ${p2.y}`,
-    `L ${p3.x} ${p3.y}`,
-    `A ${rIn} ${rIn} 0 ${largeArc} 0 ${p4.x} ${p4.y}`,
-    'Z',
-  ].join(' ');
-}
-
 export default function PieChart({ notes, categories, onCategorySelect }: PieChartProps) {
-  const [hoveredSlice, setHoveredSlice] = useState<number | null>(null);
-  const [activeSlice, setActiveSlice] = useState<number | null>(null);
-  const [tooltip, setTooltip] = useState<{ x: number; y: number; content: string } | null>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
+  const [activeCategory, setActiveCategory] = useState<number | null>(null);
 
   const data = categories
     .map((cat, i) => ({
@@ -65,48 +33,18 @@ export default function PieChart({ notes, categories, onCategorySelect }: PieCha
     .sort((a, b) => b.count - a.count);
 
   const total = data.reduce((sum, d) => sum + d.count, 0);
+  const maxCount = data.length > 0 ? Math.max(...data.map((d) => d.count)) : 0;
 
-  let currentAngle = 0;
-  const slices = data.map((d) => {
-    const sliceAngle = total === 0 ? 0 : (d.count / total) * 360;
-    const start = currentAngle;
-    const end = currentAngle + sliceAngle;
-    currentAngle = end;
-    const mid = start + sliceAngle / 2;
-    return {
-      ...d,
-      start,
-      end,
-      mid,
-      pct: total === 0 ? 0 : Math.round((d.count / total) * 100),
-    };
-  });
+  const latestNote = notes.length > 0
+    ? notes.reduce((latest, note) =>
+        new Date(note.created_at) > new Date(latest.created_at) ? note : latest
+      )
+    : null;
 
-  const cx = 150;
-  const cy = 150;
-  const rOut = 110;
-  const rIn = 65;
-
-  const handleSliceClick = (sliceId: number) => {
-    const next = activeSlice === sliceId ? null : sliceId;
-    setActiveSlice(next);
+  const handleCategoryClick = (id: number) => {
+    const next = activeCategory === id ? null : id;
+    setActiveCategory(next);
     onCategorySelect?.(next);
-  };
-
-  const handleMouseMove = (e: React.MouseEvent, slice: typeof slices[0]) => {
-    const rect = containerRef.current?.getBoundingClientRect();
-    if (!rect) return;
-    setTooltip({
-      x: e.clientX - rect.left,
-      y: e.clientY - rect.top,
-      content: `${slice.name}: ${slice.count} notes (${slice.pct}%)`,
-    });
-  };
-
-  const isDimmed = (sliceId: number) => {
-    if (activeSlice !== null && activeSlice !== sliceId) return true;
-    if (hoveredSlice !== null && hoveredSlice !== sliceId) return true;
-    return false;
   };
 
   if (total === 0) {
@@ -119,24 +57,10 @@ export default function PieChart({ notes, categories, onCategorySelect }: PieCha
       >
         <div className="relative w-28 h-28 mb-4">
           <svg viewBox="0 0 120 120" className="w-full h-full drop-shadow-sm">
-            <circle
-              cx="60"
-              cy="60"
-              r="44"
-              fill="none"
-              stroke="#e2e8f0"
-              strokeWidth="12"
-            />
+            <circle cx="60" cy="60" r="44" fill="none" stroke="#e2e8f0" strokeWidth="12" />
             <motion.circle
-              cx="60"
-              cy="60"
-              r="44"
-              fill="none"
-              stroke="#cbd5e1"
-              strokeWidth="12"
-              strokeLinecap="round"
-              strokeDasharray="276"
-              strokeDashoffset="276"
+              cx="60" cy="60" r="44" fill="none" stroke="#cbd5e1" strokeWidth="12"
+              strokeLinecap="round" strokeDasharray="276" strokeDashoffset="276"
               initial={{ strokeDashoffset: 276 }}
               animate={{ strokeDashoffset: 180 }}
               transition={{ duration: 1.2, ease: 'easeInOut' }}
@@ -159,139 +83,114 @@ export default function PieChart({ notes, categories, onCategorySelect }: PieCha
   }
 
   return (
-    <div className="flex flex-col items-center">
-      <motion.div
-        ref={containerRef}
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.6 }}
-        className="relative h-64 w-full flex items-center justify-center"
-      >
-        <svg viewBox="0 0 300 300" className="w-full h-full mx-auto drop-shadow-2xl">
-          {slices.map((slice, index) => (
-            <motion.path
-              key={slice.id}
-              d={donutSegment(cx, cy, rOut, rIn, slice.start, slice.end)}
-              fill={slice.color}
-              stroke="white"
-              strokeWidth={3}
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{
-                opacity: isDimmed(slice.id) ? 0.35 : 1,
-                scale: 1,
-              }}
-              transition={{
-                opacity: { duration: 0.25 },
-                scale: { duration: 0.4, delay: index * 0.06, type: 'spring', stiffness: 200 },
-              }}
-              style={{ transformOrigin: `${cx}px ${cy}px`, cursor: 'pointer' }}
-              onMouseEnter={() => setHoveredSlice(slice.id)}
-              onMouseLeave={() => {
-                setHoveredSlice(null);
-                setTooltip(null);
-              }}
-              onMouseMove={(e) => handleMouseMove(e, slice)}
-              onClick={() => handleSliceClick(slice.id)}
-            />
-          ))}
-
-          {/* Subtle inner ring */}
-          <circle cx={cx} cy={cy} r={rIn - 4} fill="white" />
-
-          {/* Percentage labels on large slices */}
-          {slices
-            .filter((s) => s.pct >= 10)
-            .map((s) => {
-              const labelR = (rOut + rIn) / 2;
-              const pos = polar(cx, cy, labelR, s.mid);
-              return (
-                <motion.text
-                  key={`label-${s.id}`}
-                  x={pos.x}
-                  y={pos.y}
-                  textAnchor="middle"
-                  dominantBaseline="central"
-                  className="text-[11px] font-bold select-none pointer-events-none"
-                  fill="white"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: isDimmed(s.id) ? 0.2 : 1 }}
-                  transition={{ delay: 0.3, duration: 0.3 }}
-                >
-                  {s.pct}%
-                </motion.text>
-              );
-            })}
-        </svg>
-
-        {/* Center total */}
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <div className="flex flex-col items-center">
-            <motion.span
-              key={total}
-              initial={{ opacity: 0, y: -8 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="text-3xl font-black text-slate-800 leading-none"
-            >
-              {total}
-            </motion.span>
-            <span className="text-xs text-slate-500 font-medium mt-1">Notes</span>
+    <div className="space-y-6">
+      {/* Quick Stats */}
+      <div className="grid grid-cols-3 gap-3">
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-4 border border-blue-200"
+        >
+          <div className="flex items-center gap-2 mb-2">
+            <FileText className="w-4 h-4 text-blue-600" />
+            <span className="text-xs font-bold text-blue-700 uppercase">Notes</span>
           </div>
+          <p className="text-2xl font-black text-blue-900">{total}</p>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-2xl p-4 border border-emerald-200"
+        >
+          <div className="flex items-center gap-2 mb-2">
+            <Layers className="w-4 h-4 text-emerald-600" />
+            <span className="text-xs font-bold text-emerald-700 uppercase">Categories</span>
+          </div>
+          <p className="text-2xl font-black text-emerald-900">{categories.length}</p>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="bg-gradient-to-br from-amber-50 to-amber-100 rounded-2xl p-4 border border-amber-200"
+        >
+          <div className="flex items-center gap-2 mb-2">
+            <Calendar className="w-4 h-4 text-amber-600" />
+            <span className="text-xs font-bold text-amber-700 uppercase">Latest</span>
+          </div>
+          <p className="text-lg font-black text-amber-900 leading-tight">
+            {latestNote
+              ? new Date(latestNote.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+              : '—'}
+          </p>
+        </motion.div>
+      </div>
+
+      {/* Horizontal Bar Chart */}
+      <div className="space-y-3">
+        <div className="flex items-center gap-2 mb-4">
+          <BarChart3 className="w-4 h-4 text-slate-500" />
+          <h4 className="text-sm font-bold text-slate-700 uppercase tracking-wide">Category Breakdown</h4>
         </div>
 
-        {/* Custom Tooltip */}
-        <AnimatePresence>
-          {tooltip && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9 }}
-              transition={{ duration: 0.15 }}
-              className="absolute pointer-events-none z-20 bg-slate-900 text-white text-xs font-bold px-3 py-2 rounded-xl shadow-2xl whitespace-nowrap"
-              style={{
-                left: tooltip.x + 12,
-                top: tooltip.y - 36,
-              }}
-            >
-              {tooltip.content}
-              <div className="absolute left-3 -bottom-1 w-2 h-2 bg-slate-900 rotate-45" />
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </motion.div>
+        {data.map((item, index) => {
+          const pct = total === 0 ? 0 : Math.round((item.count / total) * 100);
+          const width = maxCount === 0 ? 0 : (item.count / maxCount) * 100;
+          const isActive = activeCategory === item.id;
 
-      {/* Interactive Legend */}
-      <div className="mt-4 flex flex-wrap gap-3 justify-center w-full">
-        {slices.map((slice) => (
-          <motion.div
-            key={slice.id}
-            className={[
-              'flex items-center gap-2 px-3 py-1.5 rounded-full border transition-colors cursor-pointer select-none',
-              activeSlice === slice.id
-                ? 'bg-white shadow-md border-slate-300 ring-1 ring-slate-300'
-                : 'bg-slate-50 border-slate-100 hover:bg-slate-100',
-            ].join(' ')}
-            onMouseEnter={() => setHoveredSlice(slice.id)}
-            onMouseLeave={() => setHoveredSlice(null)}
-            onClick={() => handleSliceClick(slice.id)}
-            whileHover={{ scale: 1.04 }}
-            whileTap={{ scale: 0.96 }}
-          >
-            <span
-              className="w-3 h-3 rounded-full"
-              style={{
-                backgroundColor: slice.color,
-                opacity: isDimmed(slice.id) ? 0.35 : 1,
-              }}
-            />
-            <span className="text-xs font-semibold text-slate-700">
-              {slice.name}
-            </span>
-            <span className="text-xs text-slate-500">
-              {slice.count} ({slice.pct}%)
-            </span>
-          </motion.div>
-        ))}
+          return (
+            <motion.div
+              key={item.id}
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: index * 0.06 }}
+              className={`cursor-pointer rounded-xl p-3 transition-all ${
+                isActive
+                  ? 'bg-slate-100 ring-2 ring-slate-300'
+                  : 'hover:bg-slate-50'
+              }`}
+              onClick={() => handleCategoryClick(item.id)}
+            >
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <span className={`w-3 h-3 rounded-full ${item.color}`} />
+                  <span className="text-sm font-bold text-slate-800">{item.name}</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="text-sm font-bold text-slate-600">{item.count}</span>
+                  <span className="text-xs font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">
+                    {pct}%
+                  </span>
+                </div>
+              </div>
+              <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={{ width: `${width}%` }}
+                  transition={{ duration: 0.8, delay: index * 0.06, ease: 'easeOut' }}
+                  className={`h-full rounded-full ${item.color}`}
+                />
+              </div>
+            </motion.div>
+          );
+        })}
       </div>
+
+      {activeCategory !== null && (
+        <motion.button
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          onClick={() => handleCategoryClick(activeCategory)}
+          className="w-full py-2 text-xs font-bold text-slate-500 hover:text-slate-700 bg-slate-50 hover:bg-slate-100 rounded-xl transition-all"
+        >
+          Clear Filter
+        </motion.button>
+      )}
     </div>
   );
 }
+
